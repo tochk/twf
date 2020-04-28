@@ -1,0 +1,41 @@
+{% import "github.com/tochk/twf/datastruct" %}
+
+{% func Form(link, content string) %}
+<div class="auth">
+    <form action="{%s link %}" method="post">
+        {%s= content %}
+        <input type="submit" class="btn btn-primary" value="Save">
+    </form>
+</div>
+{% endfunc %}
+
+
+{% func FormItem(field datastruct.Field) %}
+<div class="form-group">
+    <label for="{%s field.Name %}">{%s field.Title %}</label>
+    {% if field.Type == "textarea" %}
+    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">{%v field.Value %}</textarea>
+    {% else %}
+    <input type="{%s field.Type %}" {% if !field.IsNotRequired %} required {% endif %} name="{%s field.Name %}" class="form-control"
+           id="{%s field.Name %}" placeholder="Enter {%s field.Title %}"  value="{%v field.Value %}">
+    {% endif %}
+</div>
+{% endfunc %}
+
+{% func FormItemSelect(field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) %}
+<div class="form-group">
+    <label for="{%s field.Name %}">{%s field.Title %}</label>
+    <select class="form-control" id="{%s field.Name %}" name="{%s field.Name %}">
+            {% for _, e := range kvs %}
+            <option {% if selectedID != nil %} {% if selectedID == e.ID %} selected {% endif %} {% endif %} value="{%v e.ID %}">{%v e.Name %}</option>
+            {% endfor %}
+    </select>
+</div>
+{% endfunc %}
+
+{% func FormItemCheckbox(field datastruct.Field) %}
+<div class="form-group">
+    <label for="{%s field.Name %}">{%s field.Title %}</label>
+    <input type="checkbox" name="{%s field.Name %}" {% if field.Value == "true" %} checked {% endif %}  value="on" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">
+</div>
+{% endfunc %}

@@ -1,0 +1,24 @@
+{% import "github.com/tochk/twf/datastruct" %}
+
+{% func ItemList(fields []datastruct.Field, content string) %}
+<table class="table">
+    <thead class="thead-dark">
+    <tr>
+        {% for _, field := range fields %}
+        <th>{%s field.Title %}</th>
+        {% endfor %}
+    </tr>
+    </thead>
+    <tbody>
+        {%s= content %}
+    </tbody>
+</table>
+{% endfunc %}
+
+{% func Item(values []interface{}) %}
+<tr>
+{% for _, value := range values %}
+    <td>{%v= value %}</td>
+{% endfor %}
+</tr>
+{% endfunc %}

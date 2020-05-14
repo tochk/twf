@@ -70,6 +70,7 @@ func List(title string, isAdmin bool, item interface{}, items interface{}, fks .
 						value = fields[j].Value
 					}
 				}
+				var fkValue interface{}
 				if fields[j].FkInfo != nil {
 					fksInfo := fields[j].FkInfo
 					if len(fks) <= fksInfo.FksIndex {
@@ -105,12 +106,17 @@ func List(title string, isAdmin bool, item interface{}, items interface{}, fks .
 							}
 						}
 						if value == fkKv.ID {
+							fkValue = value
 							value = fkKv.Name
 							break
 						}
 					}
 				}
-				data[fields[j].Name] = fmt.Sprint(value)
+				if fkValue != nil {
+					data[fields[j].Name] = fmt.Sprint(fkValue)
+				} else {
+					data[fields[j].Name] = fmt.Sprint(value)
+				}
 				if !fields[j].IsNotShowOnList {
 					itemsSlice = append(itemsSlice, value)
 				}

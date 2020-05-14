@@ -12,9 +12,10 @@ type TWF struct {
 	ListItemFunc     func([]interface{}) string
 	FooterFunc       func() string
 	FormFunc         func(string, string) string
-	FormItemFunc     func(datastruct.Field) string
-	FormItemSelect   func(field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) string
-	FormItemCheckbox func(field datastruct.Field) string
+	FormItemText     func(datastruct.Field) string
+	FormItemTextarea func(datastruct.Field) string
+	FormItemSelect   func(datastruct.Field, []datastruct.FkKV, interface{}) string
+	FormItemCheckbox func(datastruct.Field) string
 }
 
 func New() *TWF {
@@ -25,7 +26,8 @@ func New() *TWF {
 		ListItemFunc:     twftemplates.Item,
 		FooterFunc:       twftemplates.Footer,
 		FormFunc:         twftemplates.Form,
-		FormItemFunc:     twftemplates.FormItem,
+		FormItemText:     twftemplates.FormItem,
+		FormItemTextarea: twftemplates.FormItemTextarea,
 		FormItemSelect:   twftemplates.FormItemSelect,
 		FormItemCheckbox: twftemplates.FormItemCheckbox,
 	}

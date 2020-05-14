@@ -13,12 +13,15 @@
 {% func FormItem(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    {% if field.Type == "textarea" %}
-    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">{%v field.Value %}</textarea>
-    {% else %}
     <input type="{%s field.Type %}" {% if !field.IsNotRequired %} required {% endif %} name="{%s field.Name %}" class="form-control"
            id="{%s field.Name %}" placeholder="Enter {%s field.Title %}"  value="{%v field.Value %}">
-    {% endif %}
+</div>
+{% endfunc %}
+
+{% func FormItemTextarea(field datastruct.Field) %}
+<div class="form-group">
+    <label for="{%s field.Name %}">{%s field.Title %}</label>
+    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">{%v field.Value %}</textarea>
 </div>
 {% endfunc %}
 

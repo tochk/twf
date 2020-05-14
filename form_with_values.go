@@ -89,8 +89,10 @@ func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ..
 					content.WriteString(t.FormItemSelect(field, kvs, value))
 				case "checkbox":
 					content.WriteString(t.FormItemCheckbox(field))
+				case "textarea":
+					content.WriteString(t.FormItemTextarea(field))
 				default:
-					content.WriteString(t.FormItemFunc(field))
+					content.WriteString(t.FormItemText(field))
 				}
 			}
 		}

@@ -82,251 +82,281 @@ func StreamFormItem(qw422016 *qt422016.Writer, field datastruct.Field) {
 	qw422016.E().S(field.Title)
 //line form.qtpl:15
 	qw422016.N().S(`</label>
-    `)
-//line form.qtpl:16
-	if field.Type == "textarea" {
-//line form.qtpl:16
-		qw422016.N().S(`
-    <textarea name="`)
-//line form.qtpl:17
-		qw422016.E().S(field.Name)
-//line form.qtpl:17
-		qw422016.N().S(`" rows="10" class="form-control" id="`)
-//line form.qtpl:17
-		qw422016.E().S(field.Name)
-//line form.qtpl:17
-		qw422016.N().S(`" placeholder="Enter `)
-//line form.qtpl:17
-		qw422016.E().S(field.Title)
-//line form.qtpl:17
-		qw422016.N().S(`">`)
-//line form.qtpl:17
-		qw422016.E().V(field.Value)
-//line form.qtpl:17
-		qw422016.N().S(`</textarea>
-    `)
-//line form.qtpl:18
-	} else {
-//line form.qtpl:18
-		qw422016.N().S(`
     <input type="`)
-//line form.qtpl:19
-		qw422016.E().S(field.Type)
-//line form.qtpl:19
-		qw422016.N().S(`" `)
-//line form.qtpl:19
-		if !field.IsNotRequired {
-//line form.qtpl:19
-			qw422016.N().S(` required `)
-//line form.qtpl:19
-		}
-//line form.qtpl:19
-		qw422016.N().S(` name="`)
-//line form.qtpl:19
-		qw422016.E().S(field.Name)
-//line form.qtpl:19
-		qw422016.N().S(`" class="form-control"
-           id="`)
-//line form.qtpl:20
-		qw422016.E().S(field.Name)
-//line form.qtpl:20
-		qw422016.N().S(`" placeholder="Enter `)
-//line form.qtpl:20
-		qw422016.E().S(field.Title)
-//line form.qtpl:20
-		qw422016.N().S(`"  value="`)
-//line form.qtpl:20
-		qw422016.E().V(field.Value)
-//line form.qtpl:20
-		qw422016.N().S(`">
-    `)
-//line form.qtpl:21
+//line form.qtpl:16
+	qw422016.E().S(field.Type)
+//line form.qtpl:16
+	qw422016.N().S(`" `)
+//line form.qtpl:16
+	if !field.IsNotRequired {
+//line form.qtpl:16
+		qw422016.N().S(` required `)
+//line form.qtpl:16
 	}
-//line form.qtpl:21
-	qw422016.N().S(`
+//line form.qtpl:16
+	qw422016.N().S(` name="`)
+//line form.qtpl:16
+	qw422016.E().S(field.Name)
+//line form.qtpl:16
+	qw422016.N().S(`" class="form-control"
+           id="`)
+//line form.qtpl:17
+	qw422016.E().S(field.Name)
+//line form.qtpl:17
+	qw422016.N().S(`" placeholder="Enter `)
+//line form.qtpl:17
+	qw422016.E().S(field.Title)
+//line form.qtpl:17
+	qw422016.N().S(`"  value="`)
+//line form.qtpl:17
+	qw422016.E().V(field.Value)
+//line form.qtpl:17
+	qw422016.N().S(`">
 </div>
 `)
-//line form.qtpl:23
+//line form.qtpl:19
 }
 
-//line form.qtpl:23
+//line form.qtpl:19
 func WriteFormItem(qq422016 qtio422016.Writer, field datastruct.Field) {
-//line form.qtpl:23
+//line form.qtpl:19
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line form.qtpl:23
+//line form.qtpl:19
 	StreamFormItem(qw422016, field)
-//line form.qtpl:23
+//line form.qtpl:19
 	qt422016.ReleaseWriter(qw422016)
-//line form.qtpl:23
+//line form.qtpl:19
 }
 
-//line form.qtpl:23
+//line form.qtpl:19
 func FormItem(field datastruct.Field) string {
-//line form.qtpl:23
+//line form.qtpl:19
 	qb422016 := qt422016.AcquireByteBuffer()
-//line form.qtpl:23
+//line form.qtpl:19
 	WriteFormItem(qb422016, field)
-//line form.qtpl:23
+//line form.qtpl:19
 	qs422016 := string(qb422016.B)
-//line form.qtpl:23
+//line form.qtpl:19
 	qt422016.ReleaseByteBuffer(qb422016)
-//line form.qtpl:23
+//line form.qtpl:19
 	return qs422016
-//line form.qtpl:23
+//line form.qtpl:19
 }
 
-//line form.qtpl:25
-func StreamFormItemSelect(qw422016 *qt422016.Writer, field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) {
-//line form.qtpl:25
+//line form.qtpl:21
+func StreamFormItemTextarea(qw422016 *qt422016.Writer, field datastruct.Field) {
+//line form.qtpl:21
 	qw422016.N().S(`
 <div class="form-group">
     <label for="`)
-//line form.qtpl:27
+//line form.qtpl:23
 	qw422016.E().S(field.Name)
-//line form.qtpl:27
+//line form.qtpl:23
 	qw422016.N().S(`">`)
-//line form.qtpl:27
+//line form.qtpl:23
 	qw422016.E().S(field.Title)
-//line form.qtpl:27
+//line form.qtpl:23
+	qw422016.N().S(`</label>
+    <textarea name="`)
+//line form.qtpl:24
+	qw422016.E().S(field.Name)
+//line form.qtpl:24
+	qw422016.N().S(`" rows="10" class="form-control" id="`)
+//line form.qtpl:24
+	qw422016.E().S(field.Name)
+//line form.qtpl:24
+	qw422016.N().S(`" placeholder="Enter `)
+//line form.qtpl:24
+	qw422016.E().S(field.Title)
+//line form.qtpl:24
+	qw422016.N().S(`">`)
+//line form.qtpl:24
+	qw422016.E().V(field.Value)
+//line form.qtpl:24
+	qw422016.N().S(`</textarea>
+</div>
+`)
+//line form.qtpl:26
+}
+
+//line form.qtpl:26
+func WriteFormItemTextarea(qq422016 qtio422016.Writer, field datastruct.Field) {
+//line form.qtpl:26
+	qw422016 := qt422016.AcquireWriter(qq422016)
+//line form.qtpl:26
+	StreamFormItemTextarea(qw422016, field)
+//line form.qtpl:26
+	qt422016.ReleaseWriter(qw422016)
+//line form.qtpl:26
+}
+
+//line form.qtpl:26
+func FormItemTextarea(field datastruct.Field) string {
+//line form.qtpl:26
+	qb422016 := qt422016.AcquireByteBuffer()
+//line form.qtpl:26
+	WriteFormItemTextarea(qb422016, field)
+//line form.qtpl:26
+	qs422016 := string(qb422016.B)
+//line form.qtpl:26
+	qt422016.ReleaseByteBuffer(qb422016)
+//line form.qtpl:26
+	return qs422016
+//line form.qtpl:26
+}
+
+//line form.qtpl:28
+func StreamFormItemSelect(qw422016 *qt422016.Writer, field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) {
+//line form.qtpl:28
+	qw422016.N().S(`
+<div class="form-group">
+    <label for="`)
+//line form.qtpl:30
+	qw422016.E().S(field.Name)
+//line form.qtpl:30
+	qw422016.N().S(`">`)
+//line form.qtpl:30
+	qw422016.E().S(field.Title)
+//line form.qtpl:30
 	qw422016.N().S(`</label>
     <select class="form-control" id="`)
-//line form.qtpl:28
+//line form.qtpl:31
 	qw422016.E().S(field.Name)
-//line form.qtpl:28
+//line form.qtpl:31
 	qw422016.N().S(`" name="`)
-//line form.qtpl:28
+//line form.qtpl:31
 	qw422016.E().S(field.Name)
-//line form.qtpl:28
+//line form.qtpl:31
 	qw422016.N().S(`">
             `)
-//line form.qtpl:29
+//line form.qtpl:32
 	for _, e := range kvs {
-//line form.qtpl:29
+//line form.qtpl:32
 		qw422016.N().S(`
             <option `)
-//line form.qtpl:30
+//line form.qtpl:33
 		if selectedID != nil {
-//line form.qtpl:30
+//line form.qtpl:33
 			qw422016.N().S(` `)
-//line form.qtpl:30
+//line form.qtpl:33
 			if selectedID == e.ID {
-//line form.qtpl:30
+//line form.qtpl:33
 				qw422016.N().S(` selected `)
-//line form.qtpl:30
+//line form.qtpl:33
 			}
-//line form.qtpl:30
+//line form.qtpl:33
 			qw422016.N().S(` `)
-//line form.qtpl:30
+//line form.qtpl:33
 		}
-//line form.qtpl:30
+//line form.qtpl:33
 		qw422016.N().S(` value="`)
-//line form.qtpl:30
+//line form.qtpl:33
 		qw422016.E().V(e.ID)
-//line form.qtpl:30
+//line form.qtpl:33
 		qw422016.N().S(`">`)
-//line form.qtpl:30
+//line form.qtpl:33
 		qw422016.E().V(e.Name)
-//line form.qtpl:30
+//line form.qtpl:33
 		qw422016.N().S(`</option>
             `)
-//line form.qtpl:31
+//line form.qtpl:34
 	}
-//line form.qtpl:31
+//line form.qtpl:34
 	qw422016.N().S(`
     </select>
 </div>
 `)
-//line form.qtpl:34
+//line form.qtpl:37
 }
 
-//line form.qtpl:34
+//line form.qtpl:37
 func WriteFormItemSelect(qq422016 qtio422016.Writer, field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) {
-//line form.qtpl:34
+//line form.qtpl:37
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line form.qtpl:34
+//line form.qtpl:37
 	StreamFormItemSelect(qw422016, field, kvs, selectedID)
-//line form.qtpl:34
+//line form.qtpl:37
 	qt422016.ReleaseWriter(qw422016)
-//line form.qtpl:34
+//line form.qtpl:37
 }
 
-//line form.qtpl:34
+//line form.qtpl:37
 func FormItemSelect(field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) string {
-//line form.qtpl:34
+//line form.qtpl:37
 	qb422016 := qt422016.AcquireByteBuffer()
-//line form.qtpl:34
+//line form.qtpl:37
 	WriteFormItemSelect(qb422016, field, kvs, selectedID)
-//line form.qtpl:34
+//line form.qtpl:37
 	qs422016 := string(qb422016.B)
-//line form.qtpl:34
+//line form.qtpl:37
 	qt422016.ReleaseByteBuffer(qb422016)
-//line form.qtpl:34
+//line form.qtpl:37
 	return qs422016
-//line form.qtpl:34
+//line form.qtpl:37
 }
 
-//line form.qtpl:36
+//line form.qtpl:39
 func StreamFormItemCheckbox(qw422016 *qt422016.Writer, field datastruct.Field) {
-//line form.qtpl:36
+//line form.qtpl:39
 	qw422016.N().S(`
 <div class="form-group">
     <label for="`)
-//line form.qtpl:38
+//line form.qtpl:41
 	qw422016.E().S(field.Name)
-//line form.qtpl:38
+//line form.qtpl:41
 	qw422016.N().S(`">`)
-//line form.qtpl:38
+//line form.qtpl:41
 	qw422016.E().S(field.Title)
-//line form.qtpl:38
+//line form.qtpl:41
 	qw422016.N().S(`</label>
     <input type="checkbox" name="`)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.E().S(field.Name)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.N().S(`" `)
-//line form.qtpl:39
+//line form.qtpl:42
 	if field.Value == "true" {
-//line form.qtpl:39
+//line form.qtpl:42
 		qw422016.N().S(` checked `)
-//line form.qtpl:39
+//line form.qtpl:42
 	}
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.N().S(`  value="on" class="form-control" id="`)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.E().S(field.Name)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.N().S(`" placeholder="Enter `)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.E().S(field.Title)
-//line form.qtpl:39
+//line form.qtpl:42
 	qw422016.N().S(`">
 </div>
 `)
-//line form.qtpl:41
+//line form.qtpl:44
 }
 
-//line form.qtpl:41
+//line form.qtpl:44
 func WriteFormItemCheckbox(qq422016 qtio422016.Writer, field datastruct.Field) {
-//line form.qtpl:41
+//line form.qtpl:44
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line form.qtpl:41
+//line form.qtpl:44
 	StreamFormItemCheckbox(qw422016, field)
-//line form.qtpl:41
+//line form.qtpl:44
 	qt422016.ReleaseWriter(qw422016)
-//line form.qtpl:41
+//line form.qtpl:44
 }
 
-//line form.qtpl:41
+//line form.qtpl:44
 func FormItemCheckbox(field datastruct.Field) string {
-//line form.qtpl:41
+//line form.qtpl:44
 	qb422016 := qt422016.AcquireByteBuffer()
-//line form.qtpl:41
+//line form.qtpl:44
 	WriteFormItemCheckbox(qb422016, field)
-//line form.qtpl:41
+//line form.qtpl:44
 	qs422016 := string(qb422016.B)
-//line form.qtpl:41
+//line form.qtpl:44
 	qt422016.ReleaseByteBuffer(qb422016)
-//line form.qtpl:41
+//line form.qtpl:44
 	return qs422016
-//line form.qtpl:41
+//line form.qtpl:44
 }

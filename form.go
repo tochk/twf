@@ -81,11 +81,16 @@ func (t *TWF) Form(title string, item interface{}, link string, fks ...interface
 			}
 			field.Value = fmt.Sprint(value)
 			if !field.IsNotCreatable {
-				if field.Type == "select" {
+				switch field.Type {
+				case "select":
 					content.WriteString(t.FormItemSelect(field, kvs, nil))
-					continue
+				case "checkbox":
+					content.WriteString(t.FormItemCheckbox(field))
+				case "textarea":
+					content.WriteString(t.FormItemTextarea(field))
+				default:
+					content.WriteString(t.FormItemText(field))
 				}
-				content.WriteString(t.FormItemFunc(field))
 			}
 		}
 	default:

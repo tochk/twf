@@ -35,7 +35,7 @@ func processParameters(value string, fields map[string]string) interface{} {
 	return value
 }
 
-func List(title string, isAdmin bool, item interface{}, items interface{}, fks ...interface{}) (string, error) {
+func Table(title string, item interface{}, items interface{}, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err

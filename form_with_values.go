@@ -1,13 +1,18 @@
 package twf
 
 import (
+	"errors"
 	"fmt"
 	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strings"
 )
 
-func Add(title string, isAdmin bool, item interface{}, link string, fks ...interface{}) (string, error) {
+var (
+	errorNotStruct = errors.New("item must be struct")
+)
+
+func FormWithValues(title string, item interface{}, link string, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err
@@ -23,6 +28,7 @@ func Add(title string, isAdmin bool, item interface{}, link string, fks ...inter
 		for i := 0; i < s.NumField(); i++ {
 			var value interface{}
 			field := fields[i]
+
 			if fields[i].Value == "" {
 				tmp := s.Field(i)
 				if tmp.Kind() == reflect.Ptr {
@@ -41,6 +47,7 @@ func Add(title string, isAdmin bool, item interface{}, link string, fks ...inter
 					value = fields[i].Value
 				}
 			}
+
 			kvs := make([]datastruct.FkKV, 0)
 			if fields[i].FkInfo != nil {
 				fksInfo := fields[i].FkInfo
@@ -79,13 +86,17 @@ func Add(title string, isAdmin bool, item interface{}, link string, fks ...inter
 					kvs = append(kvs, fkKv)
 				}
 			}
+
 			field.Value = fmt.Sprint(value)
-			if !field.IsNotCreatable {
-				if field.Type == "select" {
-					content.WriteString(FormItemSelect(field, kvs, nil))
-					continue
+			if !field.IsNotEditable {
+				switch field.Type {
+				case "select":
+					content.WriteString(FormItemSelect(field, kvs, value))
+				case "checkbox":
+					content.WriteString(FormItemCheckbox(field))
+				default:
+					content.WriteString(FormItemFunc(field))
 				}
-				content.WriteString(FormItemFunc(field))
 			}
 		}
 	default:

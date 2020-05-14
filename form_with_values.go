@@ -1,25 +1,20 @@
 package twf
 
 import (
-	"errors"
 	"fmt"
 	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strings"
 )
 
-var (
-	errorNotStruct = errors.New("item must be struct")
-)
-
-func FormWithValues(title string, item interface{}, link string, fks ...interface{}) (string, error) {
+func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err
 	}
 	res := strings.Builder{}
-	res.WriteString(HeadFunc(title))
-	res.WriteString(MenuFunc())
+	res.WriteString(t.HeadFunc(title))
+	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 	switch reflect.TypeOf(item).Kind() {
 	case reflect.Ptr:
@@ -91,18 +86,18 @@ func FormWithValues(title string, item interface{}, link string, fks ...interfac
 			if !field.IsNotEditable {
 				switch field.Type {
 				case "select":
-					content.WriteString(FormItemSelect(field, kvs, value))
+					content.WriteString(t.FormItemSelect(field, kvs, value))
 				case "checkbox":
-					content.WriteString(FormItemCheckbox(field))
+					content.WriteString(t.FormItemCheckbox(field))
 				default:
-					content.WriteString(FormItemFunc(field))
+					content.WriteString(t.FormItemFunc(field))
 				}
 			}
 		}
 	default:
 		return "", errorNotStruct
 	}
-	res.WriteString(FormFunc(link, content.String()))
-	res.WriteString(FooterFunc())
+	res.WriteString(t.FormFunc(link, content.String()))
+	res.WriteString(t.FooterFunc())
 	return res.String(), nil
 }

@@ -7,14 +7,14 @@ import (
 	"strings"
 )
 
-func Form(title string, item interface{}, link string, fks ...interface{}) (string, error) {
+func (t *TWF) Form(title string, item interface{}, link string, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err
 	}
 	res := strings.Builder{}
-	res.WriteString(HeadFunc(title))
-	res.WriteString(MenuFunc())
+	res.WriteString(t.HeadFunc(title))
+	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 	switch reflect.TypeOf(item).Kind() {
 	case reflect.Ptr:
@@ -82,16 +82,16 @@ func Form(title string, item interface{}, link string, fks ...interface{}) (stri
 			field.Value = fmt.Sprint(value)
 			if !field.IsNotCreatable {
 				if field.Type == "select" {
-					content.WriteString(FormItemSelect(field, kvs, nil))
+					content.WriteString(t.FormItemSelect(field, kvs, nil))
 					continue
 				}
-				content.WriteString(FormItemFunc(field))
+				content.WriteString(t.FormItemFunc(field))
 			}
 		}
 	default:
 		return "", errorNotStruct
 	}
-	res.WriteString(FormFunc(link, content.String()))
-	res.WriteString(FooterFunc())
+	res.WriteString(t.FormFunc(link, content.String()))
+	res.WriteString(t.FooterFunc())
 	return res.String(), nil
 }

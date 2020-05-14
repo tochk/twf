@@ -1,31 +1,11 @@
 package twf
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 	"strings"
 
 	"github.com/tochk/twf/datastruct"
-	"github.com/tochk/twf/twftemplates"
-)
-
-var (
-	HeadFunc         func(string) string                                                                = twftemplates.Head
-	MenuFunc         func() string                                                                      = twftemplates.Menu
-	ListFunc         func([]datastruct.Field, string) string                                            = twftemplates.ItemList
-	ListItemFunc     func([]interface{}) string                                                         = twftemplates.Item
-	FooterFunc       func() string                                                                      = twftemplates.Footer
-	FormFunc         func(string, string) string                                                        = twftemplates.Form
-	FormItemFunc     func(datastruct.Field) string                                                      = twftemplates.FormItem
-	FormItemSelect   func(field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) string = twftemplates.FormItemSelect
-	FormItemCheckbox func(field datastruct.Field) string                                                = twftemplates.FormItemCheckbox
-)
-
-var (
-	errorNotSlice        = errors.New("items must be slice")
-	ErrFksIndexNotExists = errors.New("fks index not exists")
-	ErrFksMustBeSLice    = errors.New("fks must me a slice")
 )
 
 func processParameters(value string, fields map[string]string) interface{} {
@@ -35,14 +15,14 @@ func processParameters(value string, fields map[string]string) interface{} {
 	return value
 }
 
-func Table(title string, item interface{}, items interface{}, fks ...interface{}) (string, error) {
+func (t *TWF) Table(title string, item interface{}, items interface{}, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err
 	}
 	res := strings.Builder{}
-	res.WriteString(HeadFunc(title))
-	res.WriteString(MenuFunc())
+	res.WriteString(t.HeadFunc(title))
+	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 	switch reflect.TypeOf(items).Kind() {
 	case reflect.Slice:
@@ -121,7 +101,7 @@ func Table(title string, item interface{}, items interface{}, fks ...interface{}
 					itemsSlice = append(itemsSlice, value)
 				}
 			}
-			content.WriteString(ListItemFunc(itemsSlice))
+			content.WriteString(t.ListItemFunc(itemsSlice))
 		}
 	default:
 		return "", errorNotSlice
@@ -134,7 +114,7 @@ func Table(title string, item interface{}, items interface{}, fks ...interface{}
 		f2 = append(f2, e)
 	}
 	fields = f2
-	res.WriteString(ListFunc(fields, content.String()))
-	res.WriteString(FooterFunc())
+	res.WriteString(t.ListFunc(fields, content.String()))
+	res.WriteString(t.FooterFunc())
 	return res.String(), nil
 }

@@ -1,6 +1,9 @@
 package main
 
-import "github.com/tochk/twf"
+import (
+	"github.com/tochk/twf"
+	"github.com/tochk/twf/examples/example_templates"
+)
 
 type app struct {
 	twfUser  *twf.TWF
@@ -13,7 +16,6 @@ func newApp() *app {
 		twfAdmin: twf.New(),
 	}
 
-	//todo change menu for admin
-
+	a.twfAdmin.MenuFunc = example_templates.AdminMenu
 	return &a
 }

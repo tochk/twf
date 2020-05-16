@@ -17,5 +17,6 @@ func newApp() *app {
 	}
 
 	a.twfAdmin.MenuFunc = example_templates.AdminMenu
+	a.twfAdmin.FormFunc = example_templates.MulipartForm
 	return &a
 }

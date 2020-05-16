@@ -1,23 +1,25 @@
 package twf
 
 import (
-	"net/url"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"reflect"
 	"strconv"
 )
 
-func PostFormToStruct(item interface{}, postForm url.Values) error {
+func PostFormToStruct(item interface{}, r *http.Request) error {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return err
 	}
 	postFormMap := map[string]string{}
-	for k := range postForm {
-		postFormMap[k] = postForm.Get(k)
+	for k := range r.PostForm {
+		postFormMap[k] = r.PostForm.Get(k)
 	}
 	s := reflect.ValueOf(item).Elem()
 	for i := 0; i < s.NumField(); i++ {
-		if _, ok := postFormMap[fields[i].Name]; !ok {
+		if _, ok := postFormMap[fields[i].Name]; !ok && fields[i].Type != "file" {
 			continue
 		}
 		switch s.Field(i).Kind() {
@@ -43,6 +45,20 @@ func PostFormToStruct(item interface{}, postForm url.Values) error {
 			s.Field(i).SetFloat(v)
 		case reflect.Bool:
 			s.Field(i).SetBool(postFormMap[fields[i].Name] == "on")
+		case reflect.Slice:
+			log.Println(s.Field(i).Type() == reflect.TypeOf([]byte{}))
+			log.Println(fields[i].Type == "file")
+			if s.Field(i).Type() == reflect.TypeOf([]byte{}) && fields[i].Type == "file" {
+				file, _, err := r.FormFile(fields[i].Name)
+				if err != nil {
+					return err
+				}
+				data, err := ioutil.ReadAll(file)
+				if err != nil {
+					return err
+				}
+				s.Field(i).SetBytes(data)
+			}
 		}
 	}
 	return nil

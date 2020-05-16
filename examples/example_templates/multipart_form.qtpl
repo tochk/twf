@@ -1,0 +1,8 @@
+{% func MulipartForm(link, content string) %}
+<div class="auth">
+    <form enctype="multipart/form-data" action="{%s link %}" method="post">
+        {%s= content %}
+        <input type="submit" class="btn btn-primary" value="Save">
+    </form>
+</div>
+{% endfunc %}

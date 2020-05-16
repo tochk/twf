@@ -8,6 +8,7 @@ fmt:
 	go fmt ./...
 
 run:
-	go run examples/main.go
+	go build -o ./bin/example ./examples/
+	./bin/example
 
 all: fmt generate test run

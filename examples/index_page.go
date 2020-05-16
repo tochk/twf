@@ -17,6 +17,7 @@ func (a *app) indexPage(w http.ResponseWriter, r *http.Request) {
 		data, err := a.twfUser.Form("Login", &logData, "")
 		if err != nil {
 			fmt.Fprint(w, "Err: ", err)
+			return
 		}
 		fmt.Fprint(w, data)
 		return

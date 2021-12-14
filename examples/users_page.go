@@ -47,7 +47,7 @@ func (a *app) usersEditPage(w http.ResponseWriter, r *http.Request) {
 	}
 	switch r.Method {
 	case http.MethodGet:
-		data, err := a.twfAdmin.Form("Users", &users[id], "")
+		data, err := a.twfAdmin.AddForm("Users", &users[id], "")
 		if err != nil {
 			fmt.Fprint(w, "Err: ", err)
 			return

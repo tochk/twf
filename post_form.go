@@ -9,6 +9,7 @@ import (
 )
 
 func PostFormToStruct(item interface{}, r *http.Request) error {
+	//TODO check is pointer
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return err

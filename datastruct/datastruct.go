@@ -15,13 +15,6 @@ type Field struct {
 	FkInfo            *FkInfo
 }
 
-type Config struct {
-	Title       string
-	IsEditable  bool
-	IsDeletable bool
-	IsCreatable bool
-}
-
 type FkInfo struct {
 	FksIndex int
 	ID       string

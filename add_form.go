@@ -7,7 +7,7 @@ import (
 	"strings"
 )
 
-func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ...interface{}) (string, error) {
+func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interface{}) (string, error) {
 	fields, err := GetFieldDescription(item)
 	if err != nil {
 		return "", err
@@ -23,7 +23,6 @@ func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ..
 		for i := 0; i < s.NumField(); i++ {
 			var value interface{}
 			field := fields[i]
-
 			if fields[i].Value == "" {
 				tmp := s.Field(i)
 				if tmp.Kind() == reflect.Ptr {
@@ -42,7 +41,6 @@ func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ..
 					value = fields[i].Value
 				}
 			}
-
 			kvs := make([]datastruct.FkKV, 0)
 			if fields[i].FkInfo != nil {
 				fksInfo := fields[i].FkInfo
@@ -81,12 +79,11 @@ func (t *TWF) FormWithValues(title string, item interface{}, link string, fks ..
 					kvs = append(kvs, fkKv)
 				}
 			}
-
 			field.Value = fmt.Sprint(value)
-			if !field.IsNotEditable {
+			if !field.IsNotCreatable {
 				switch field.Type {
 				case "select":
-					content.WriteString(t.FormItemSelect(field, kvs, value))
+					content.WriteString(t.FormItemSelect(field, kvs, nil))
 				case "checkbox":
 					content.WriteString(t.FormItemCheckbox(field))
 				case "textarea":

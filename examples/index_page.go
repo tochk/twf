@@ -14,7 +14,7 @@ func (a *app) indexPage(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		var logData loginData
-		data, err := a.twfUser.Form("Login", &logData, "")
+		data, err := a.twfUser.AddForm("Login", &logData, "")
 		if err != nil {
 			fmt.Fprint(w, "Err: ", err)
 			return

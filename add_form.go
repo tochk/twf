@@ -80,7 +80,7 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 				}
 			}
 			field.Value = fmt.Sprint(value)
-			if !field.IsNotCreatable {
+			if !field.NoCreate {
 				switch field.Type {
 				case "select":
 					content.WriteString(t.FormItemSelect(field, kvs, nil))

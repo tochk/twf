@@ -13,7 +13,7 @@
 {% func FormItem(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <input type="{%s field.Type %}" {% if !field.IsNotRequired %} required {% endif %} name="{%s field.Name %}" class="form-control"
+    <input type="{%s field.Type %}" {% if field.Required %} required {% endif %} name="{%s field.Name %}" class="form-control"
            id="{%s field.Name %}" placeholder="Enter {%s field.Title %}"  value="{%v field.Value %}">
 </div>
 {% endfunc %}

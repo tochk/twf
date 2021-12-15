@@ -97,7 +97,7 @@ func (t *TWF) Table(title string, item interface{}, items interface{}, fks ...in
 				} else {
 					data[fields[j].Name] = fmt.Sprint(value)
 				}
-				if !fields[j].IsNotShowOnList {
+				if !fields[j].NotShowOnTable {
 					itemsSlice = append(itemsSlice, value)
 				}
 			}
@@ -108,7 +108,7 @@ func (t *TWF) Table(title string, item interface{}, items interface{}, fks ...in
 	}
 	f2 := make([]datastruct.Field, 0, len(fields))
 	for _, e := range fields {
-		if e.IsNotShowOnList {
+		if e.NotShowOnTable {
 			continue
 		}
 		f2 = append(f2, e)

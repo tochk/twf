@@ -88,7 +88,7 @@ func StreamFormItem(qw422016 *qt422016.Writer, field datastruct.Field) {
 //line form.qtpl:16
 	qw422016.N().S(`" `)
 //line form.qtpl:16
-	if !field.IsNotRequired {
+	if field.Required {
 //line form.qtpl:16
 		qw422016.N().S(` required `)
 //line form.qtpl:16

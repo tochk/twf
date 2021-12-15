@@ -5,11 +5,10 @@ type Field struct {
 	Title             string
 	Type              string
 	IsNotDisabled     bool
-	IsNotRequired     bool
-	IsNotEditable     bool
-	IsNotCreatable    bool
-	IsNotShowOnList   bool
-	IsNotShowOnItem   bool
+	Required          bool
+	NoCreate          bool
+	NoEdit            bool
+	NotShowOnTable    bool
 	ProcessParameters bool
 	Value             string
 	FkInfo            *FkInfo

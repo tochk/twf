@@ -67,18 +67,14 @@ func GetFieldDescription(item interface{}) ([]datastruct.Field, error) {
 				field.Title = e[6:]
 			case strings.HasPrefix(e, "value:"):
 				field.Value = e[6:]
-			case e == "is_not_creatable":
-				field.IsNotCreatable = true
-			case e == "is_not_disabled":
-				field.IsNotDisabled = true
-			case e == "is_not_editable":
-				field.IsNotEditable = true
-			case e == "is_not_required":
-				field.IsNotRequired = true
-			case e == "is_not_show_on_item":
-				field.IsNotShowOnItem = true
-			case e == "is_not_show_on_list":
-				field.IsNotShowOnList = true
+			case e == "no_create":
+				field.NoCreate = true
+			case e == "no_edit":
+				field.NoEdit = true
+			case e == "required":
+				field.Required = true
+			case e == "not_show_on_table":
+				field.NotShowOnTable = true
 			case e == "process_parameters":
 				field.ProcessParameters = true
 			default:
@@ -89,4 +85,16 @@ func GetFieldDescription(item interface{}) ([]datastruct.Field, error) {
 		fields = append(fields, field)
 	}
 	return fields, nil
+}
+
+func getFieldValue(field reflect.Value) interface{} {
+	if field.Kind() == reflect.Ptr {
+		if field.IsNil() {
+			return "<nil>"
+		} else {
+			return field.Elem().Interface()
+		}
+	}
+
+	return field.Interface()
 }

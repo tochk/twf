@@ -9,12 +9,12 @@ import (
 )
 
 type user struct {
-	ID    int    `twf:"name:id,title:ID,is_not_creatable,is_not_editable"`
+	ID    int    `twf:"name:id,title:ID,no_create,no_edit"`
 	Login string `twf:"name:login,title:Login"`
 	Email string `twf:"name:email,title:Email"`
 	//GroupID int    `twf:"name:group_id,title:Group,fk:0,id,name"`
-	Avatar []byte `twf:"name:avatar,title:Avatar,is_not_show_on_list,is_not_required,type:file"`
-	Edit   string `twf:"process_parameters,title:Edit,name:edit,value:<a href=\"/users/edit/{id}\">Edit</a>,is_not_creatable,is_not_editable"`
+	Avatar []byte `twf:"name:avatar,title:Avatar,not_show_on_table,type:file"`
+	Edit   string `twf:"title:Edit,name:edit,value:<a href=\"/users/edit/{id}\">Edit</a>,no_create,no_edit,process_parameters"`
 }
 
 var users = []user{

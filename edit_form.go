@@ -23,18 +23,12 @@ func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...i
 		for i := 0; i < s.NumField(); i++ {
 			var value interface{}
 			field := fields[i]
+			if field.NoEdit {
+				continue
+			}
 
 			if fields[i].Value == "" {
-				tmp := s.Field(i)
-				if tmp.Kind() == reflect.Ptr {
-					if tmp.IsNil() {
-						value = ""
-					} else {
-						value = tmp.Elem().Interface()
-					}
-				} else {
-					value = tmp.Interface()
-				}
+				value = getFieldValue(s.Field(i))
 			} else {
 				if fields[i].ProcessParameters {
 					value = processParameters(fields[i].Value, data)
@@ -83,17 +77,15 @@ func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...i
 			}
 
 			field.Value = fmt.Sprint(value)
-			if !field.IsNotEditable {
-				switch field.Type {
-				case "select":
-					content.WriteString(t.FormItemSelect(field, kvs, value))
-				case "checkbox":
-					content.WriteString(t.FormItemCheckbox(field))
-				case "textarea":
-					content.WriteString(t.FormItemTextarea(field))
-				default:
-					content.WriteString(t.FormItemText(field))
-				}
+			switch field.Type {
+			case "select":
+				content.WriteString(t.FormItemSelect(field, kvs, value))
+			case "checkbox":
+				content.WriteString(t.FormItemCheckbox(field))
+			case "textarea":
+				content.WriteString(t.FormItemTextarea(field))
+			default:
+				content.WriteString(t.FormItemText(field))
 			}
 		}
 	default:

@@ -1,15 +1,22 @@
 package twf
 
 import (
+	"fmt"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"reflect"
 	"strconv"
 )
 
 func PostFormToStruct(item interface{}, r *http.Request) error {
-	//TODO check is pointer
+	if reflect.TypeOf(item).Kind() != reflect.Ptr {
+		return fmt.Errorf("twf.PostFormToStruct: expected ptr, got %s", reflect.TypeOf(item).Kind().String())
+	}
+
+	if reflect.TypeOf(item).Elem().Kind() != reflect.Struct {
+		return fmt.Errorf("twf.PostFormToStruct: expected ptr to struct, got ptr to %s", reflect.TypeOf(item).Elem().Kind())
+	}
+
 	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
 		return err
@@ -47,10 +54,11 @@ func PostFormToStruct(item interface{}, r *http.Request) error {
 		case reflect.Bool:
 			s.Field(i).SetBool(postFormMap[fields[i].Name] == "on")
 		case reflect.Slice:
-			log.Println(s.Field(i).Type() == reflect.TypeOf([]byte{}))
-			log.Println(fields[i].Type == "file")
 			if s.Field(i).Type() == reflect.TypeOf([]byte{}) && fields[i].Type == "file" {
 				file, _, err := r.FormFile(fields[i].Name)
+				if err == http.ErrMissingFile {
+					continue
+				}
 				if err != nil {
 					return err
 				}

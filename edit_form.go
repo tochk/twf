@@ -8,7 +8,7 @@ import (
 )
 
 func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...interface{}) (string, error) {
-	fields, err := GetFieldDescription(item)
+	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
 		return "", err
 	}

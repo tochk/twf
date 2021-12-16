@@ -33,3 +33,15 @@ func New() *TWF {
 	}
 	return &twf
 }
+
+func filterTableFields(fields []datastruct.Field) []datastruct.Field {
+	res := make([]datastruct.Field, 0, len(fields))
+	for _, field := range fields {
+		if field.NotShowOnTable {
+			continue
+		}
+		res = append(res, field)
+	}
+
+	return res
+}

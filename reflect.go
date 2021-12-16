@@ -2,6 +2,7 @@ package twf
 
 import (
 	"errors"
+	"fmt"
 	"github.com/tochk/twf/datastruct"
 	"log"
 	"reflect"
@@ -15,19 +16,26 @@ var (
 	ErrInvalidType       = errors.New("item must be pointer to struct")
 )
 
-func GetFieldDescription(item interface{}) ([]datastruct.Field, error) {
-	s := reflect.TypeOf(item)
+func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
+	s := reflect.TypeOf(slice)
+	if s.Kind() != reflect.Slice {
+		return nil, fmt.Errorf("twf.getSliceElementPtrType: expected slice, got %s", s.Kind().String())
+	}
+	s = s.Elem()
+	if s.Kind() != reflect.Struct {
+		return nil, fmt.Errorf("twf.getSliceElementPtrType: slice containts %s, expected struct", s.Kind().String())
+	}
+	s = reflect.PtrTo(s)
+	return s, nil
+}
+
+func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 	if s.Kind() != reflect.Ptr {
 		return nil, ErrInvalidType
 	}
-	//reflect.PtrTo(s) // TODO try to get pointer
-	//	fmt.Println(reflect.PtrTo(reflect.TypeOf(t).Elem()).Kind().String())
-	//	s := reflect.PtrTo(reflect.TypeOf(t).Elem()).Elem()
-	//	for i := 0; i < s.NumField(); i++ {
-	//		f := s.Field(i)
-	//		fmt.Println(f.Type.Kind().String())
-	//	} // TODO get it in another funcs - func for get item type from slice
+
 	s = s.Elem()
+
 	fields := make([]datastruct.Field, 0, s.NumField())
 	for i := 0; i < s.NumField(); i++ {
 		field := datastruct.Field{

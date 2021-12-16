@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	listenAddr = flag.String("addr", ":8080", "listen address")
+	listenAddr = flag.String("addr", ":8081", "listen address")
 )
 
 func main() {

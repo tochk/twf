@@ -31,22 +31,22 @@ func StreamAdminMenu(qw422016 *qt422016.Writer) {
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav mr-auto">
             <li class="nav-item">
-                <a class="nav-link" href="/link">Link example 1</a>
+                <a class="nav-link" href="#">Example 1</a>
             </li>
             <li class="nav-item dropdown">
                 <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                     Dropdown example 1
                 </a>
                 <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                    <a class="dropdown-item" href="link2">Link example 2</a>
+                    <a class="dropdown-item" href="/users/">Users</a>
                     <div class="dropdown-divider"></div>
-                    <a class="dropdown-item" href="link3">Link example 3</a>
+                    <a class="dropdown-item" href="#">Example 2</a>
                 </div>
             </li>
         </ul>
         <ul class="navbar-nav justify-content-end">
             <li class="nav-item">
-                <a class="nav-link active" href="/rlink1">Right link example 1</a>
+                <a class="nav-link active" href="/">Logout</a>
             </li>
         </ul>
     </div>

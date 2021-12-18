@@ -9,19 +9,27 @@
 </div>
 {% endfunc %}
 
+{% func MulipartForm(link, content string) %}
+<div class="auth">
+    <form enctype="multipart/form-data" action="{%s link %}" method="post">
+        {%s= content %}
+        <input type="submit" class="btn btn-primary" value="Save">
+    </form>
+</div>
+{% endfunc %}
 
 {% func FormItem(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
     <input type="{%s field.Type %}" {% if field.Required %} required {% endif %} name="{%s field.Name %}" class="form-control"
-           id="{%s field.Name %}" placeholder="Enter {%s field.Title %}"  value="{%v field.Value %}">
+           id="{%s field.Name %}" placeholder="{%s field.Placeholder %}"  value="{%v field.Value %}">
 </div>
 {% endfunc %}
 
 {% func FormItemTextarea(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">{%v field.Value %}</textarea>
+    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">{%v field.Value %}</textarea>
 </div>
 {% endfunc %}
 
@@ -39,6 +47,6 @@
 {% func FormItemCheckbox(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <input type="checkbox" name="{%s field.Name %}" {% if field.Value == "true" %} checked {% endif %}  value="on" class="form-control" id="{%s field.Name %}" placeholder="Enter {%s field.Title %}">
+    <input type="checkbox" name="{%s field.Name %}" {% if field.Value == "true" %} checked {% endif %}  value="on" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">
 </div>
 {% endfunc %}

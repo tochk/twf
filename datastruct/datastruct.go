@@ -4,6 +4,7 @@ type Field struct {
 	Name              string
 	Title             string
 	Type              string
+	Placeholder       string
 	IsNotDisabled     bool
 	Required          bool
 	NoCreate          bool

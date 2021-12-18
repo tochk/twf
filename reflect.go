@@ -75,6 +75,8 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 				field.Title = e[6:]
 			case strings.HasPrefix(e, "value:"):
 				field.Value = e[6:]
+			case strings.HasPrefix(e, "placeholder:"):
+				field.Placeholder = e[12:]
 			case e == "no_create":
 				field.NoCreate = true
 			case e == "no_edit":

@@ -1,6 +1,7 @@
 package twf
 
 import (
+	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"testing"
 )
@@ -90,6 +91,69 @@ func Test_getSliceElementPtrType(t *testing.T) {
 			}
 			if !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("getSliceElementPtrType() got = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_getFieldDescription(t *testing.T) {
+	type args struct {
+		s reflect.Type
+	}
+	tests := []struct {
+		name    string
+		args    args
+		want    []datastruct.Field
+		wantErr bool
+	}{
+		{
+			name:    "simpe_not_ptr",
+			args:    args{reflect.TypeOf(struct{}{})},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name:    "simpe_not_ptr_to_struct",
+			args:    args{reflect.TypeOf(new(string))},
+			want:    nil,
+			wantErr: true,
+		},
+		{
+			name: "simpe_struct",
+			args: args{reflect.TypeOf(&struct {
+				Test string `twf:"name:test"`
+			}{
+				Test: "",
+			})},
+			want:    []datastruct.Field{{Name: "test", Type: "text"}},
+			wantErr: false,
+		},
+		{
+			name: "complex_struct",
+			args: args{reflect.TypeOf(&struct {
+				ID      string `twf:"name:id,title:ID,no_create,no_edit"`
+				Count   int    `twf:"name:count"`
+				Enabled bool   `twf:"name:enabled"`
+			}{
+				ID: "",
+			})},
+			want: []datastruct.Field{
+				{Name: "id", Type: "text", Title: "ID", NoCreate: true, NoEdit: true},
+				{Name: "count", Type: "number"},
+				{Name: "enabled", Type: "checkbox"},
+			},
+			wantErr: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := getFieldDescription(tt.args.s)
+			if (err != nil) != tt.wantErr {
+				t.Errorf("getFieldDescription() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("getFieldDescription() got = %v, want %v", got, tt.want)
 			}
 		})
 	}

@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/tochk/twf/datastruct"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -13,7 +12,6 @@ import (
 var (
 	ErrParameterNotFound = errors.New("one or more parameters not found")
 	ErrInvalidFkInfo     = errors.New("invalid fk info (fk must be {fk_slice_index;id;name})")
-	ErrInvalidType       = errors.New("item must be pointer to struct")
 )
 
 func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
@@ -31,7 +29,11 @@ func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
 
 func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 	if s.Kind() != reflect.Ptr {
-		return nil, ErrInvalidType
+		return nil, fmt.Errorf("twf.getFieldDescription: expected ptr to struct, got %s", s.Kind().String())
+	}
+
+	if s.Elem().Kind() != reflect.Struct {
+		return nil, fmt.Errorf("twf.getFieldDescription: expected ptr to struct, got ptr to %s", s.Elem().Kind().String())
 	}
 
 	s = s.Elem()
@@ -88,8 +90,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			case e == "process_parameters":
 				field.ProcessParameters = true
 			default:
-				log.Print(e, tagContent, f)
-				return nil, ErrParameterNotFound
+				return nil, fmt.Errorf("twf.getFieldDescription: unexpected parameter in twf tag: %s", e)
 			}
 		}
 		fields = append(fields, field)

@@ -10,8 +10,8 @@ fmt:
 test_cover:
 	go test ./... -cover
 
-run:
+run_example:
 	go build -o ./bin/example ./examples/
 	./bin/example
 
-all: fmt generate test run
+all: fmt generate test

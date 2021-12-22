@@ -2,10 +2,13 @@ package twf
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
+	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strings"
 )
 
+// processParameters replaces {field} in value
 func processParameters(value string, fields map[string]string) interface{} {
 	for k, v := range fields {
 		value = strings.Replace(value, "{"+k+"}", v, -1)
@@ -13,9 +16,23 @@ func processParameters(value string, fields map[string]string) interface{} {
 	return value
 }
 
-func (t *TWF) Table(title string, items interface{}, fks ...interface{}) (string, error) {
-	if reflect.TypeOf(items).Kind() != reflect.Slice {
-		return "", fmt.Errorf("twf.Table: expected slice, got %s", reflect.TypeOf(items).Kind().String())
+// filterTableFields filters fields is TWF.NotShowOnTable flag is enabled
+func filterTableFields(fields []datastruct.Field) []datastruct.Field {
+	res := make([]datastruct.Field, 0, len(fields))
+	for _, field := range fields {
+		if field.NotShowOnTable {
+			continue
+		}
+		res = append(res, field)
+	}
+
+	return res
+}
+
+// Table return table with contents of given slice
+func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string, error) {
+	if reflect.TypeOf(slice).Kind() != reflect.Slice {
+		return "", fmt.Errorf("twf.Table: expected slice, got %s", reflect.TypeOf(slice).Kind().String())
 	}
 
 	for i, fkSlice := range fks {
@@ -24,14 +41,14 @@ func (t *TWF) Table(title string, items interface{}, fks ...interface{}) (string
 		}
 	}
 
-	item, err := getSliceElementPtrType(items)
+	item, err := getSliceElementPtrType(slice)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "twf.Table")
 	}
 
 	fields, err := getFieldDescription(item)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "twf.Table")
 	}
 
 	res := strings.Builder{}
@@ -39,7 +56,7 @@ func (t *TWF) Table(title string, items interface{}, fks ...interface{}) (string
 	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 
-	s := reflect.ValueOf(items)
+	s := reflect.ValueOf(slice)
 	for i := 0; i < s.Len(); i++ {
 		itemsSlice := make([]interface{}, 0, s.Index(i).NumField())
 		data := map[string]string{}

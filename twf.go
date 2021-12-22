@@ -5,6 +5,7 @@ import (
 	"github.com/tochk/twf/twftemplates"
 )
 
+// TWF base struct
 type TWF struct {
 	HeadFunc         func(string) string
 	MenuFunc         func() string
@@ -18,6 +19,7 @@ type TWF struct {
 	FormItemCheckbox func(datastruct.Field) string
 }
 
+// New creates new TWF instance with default parameters
 func New() *TWF {
 	twf := TWF{
 		HeadFunc:         twftemplates.Head,
@@ -32,16 +34,4 @@ func New() *TWF {
 		FormItemCheckbox: twftemplates.FormItemCheckbox,
 	}
 	return &twf
-}
-
-func filterTableFields(fields []datastruct.Field) []datastruct.Field {
-	res := make([]datastruct.Field, 0, len(fields))
-	for _, field := range fields {
-		if field.NotShowOnTable {
-			continue
-		}
-		res = append(res, field)
-	}
-
-	return res
 }

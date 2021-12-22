@@ -2,10 +2,12 @@ package twf
 
 import (
 	"fmt"
+	"github.com/pkg/errors"
 	"reflect"
 	"strings"
 )
 
+// AddForm returns page with add form (without values, if you want a form with values from struct - use EditForm)
 func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interface{}) (string, error) {
 	itemType := reflect.TypeOf(item)
 	if itemType.Kind() != reflect.Ptr {
@@ -17,7 +19,7 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 
 	fields, err := getFieldDescription(itemType)
 	if err != nil {
-		return "", err
+		return "", errors.Wrap(err, "twf.AddForm")
 	}
 	res := strings.Builder{}
 	res.WriteString(t.HeadFunc(title))
@@ -50,7 +52,7 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 
 		kvs, err := getFKSlice(fields[i].FkInfo, fks...)
 		if err != nil {
-			return "", err
+			return "", errors.Wrap(err, "twf.AddForm")
 		}
 
 		field.Value = fmt.Sprint(value)

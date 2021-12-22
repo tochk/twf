@@ -1,19 +1,15 @@
 package twf
 
 import (
-	"errors"
 	"fmt"
+	"github.com/pkg/errors"
 	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strconv"
 	"strings"
 )
 
-var (
-	ErrParameterNotFound = errors.New("one or more parameters not found")
-	ErrInvalidFkInfo     = errors.New("invalid fk info (fk must be {fk_slice_index;id;name})")
-)
-
+// getSliceElementPtrType returns pointer to slice element
 func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
 	s := reflect.TypeOf(slice)
 	if s.Kind() != reflect.Slice {
@@ -27,6 +23,7 @@ func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
 	return s, nil
 }
 
+// getFieldDescription returns information of all fields in given struct
 func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 	if s.Kind() != reflect.Ptr {
 		return nil, fmt.Errorf("twf.getFieldDescription: expected ptr to struct, got %s", s.Kind().String())
@@ -57,11 +54,11 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			case strings.HasPrefix(e, "fk:"):
 				fkInfo := strings.Split(e[3:], ";")
 				if len(fkInfo) != 3 {
-					return nil, ErrInvalidFkInfo
+					return nil, fmt.Errorf("twf.getFieldDescription: invalid fk info {%s}, fk must be {fk_slice_index;id;name}", e[3:])
 				}
 				fkID, err := strconv.Atoi(fkInfo[0])
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "twf.getFieldDescription: can't convert fk id to int")
 				}
 				field.FkInfo = &datastruct.FkInfo{
 					FksIndex: fkID,
@@ -98,6 +95,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 	return fields, nil
 }
 
+// getFieldValue returns value of the field. Returns <nil> if value is nil
 func getFieldValue(field reflect.Value) interface{} {
 	if field.Kind() == reflect.Ptr {
 		if field.IsNil() {

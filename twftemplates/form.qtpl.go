@@ -69,7 +69,7 @@ func Form(link, content string) string {
 }
 
 //line form.qtpl:12
-func StreamMulipartForm(qw422016 *qt422016.Writer, link, content string) {
+func StreamMultipartForm(qw422016 *qt422016.Writer, link, content string) {
 //line form.qtpl:12
 	qw422016.N().S(`
 <div class="auth">
@@ -91,22 +91,22 @@ func StreamMulipartForm(qw422016 *qt422016.Writer, link, content string) {
 }
 
 //line form.qtpl:19
-func WriteMulipartForm(qq422016 qtio422016.Writer, link, content string) {
+func WriteMultipartForm(qq422016 qtio422016.Writer, link, content string) {
 //line form.qtpl:19
 	qw422016 := qt422016.AcquireWriter(qq422016)
 //line form.qtpl:19
-	StreamMulipartForm(qw422016, link, content)
+	StreamMultipartForm(qw422016, link, content)
 //line form.qtpl:19
 	qt422016.ReleaseWriter(qw422016)
 //line form.qtpl:19
 }
 
 //line form.qtpl:19
-func MulipartForm(link, content string) string {
+func MultipartForm(link, content string) string {
 //line form.qtpl:19
 	qb422016 := qt422016.AcquireByteBuffer()
 //line form.qtpl:19
-	WriteMulipartForm(qb422016, link, content)
+	WriteMultipartForm(qb422016, link, content)
 //line form.qtpl:19
 	qs422016 := string(qb422016.B)
 //line form.qtpl:19

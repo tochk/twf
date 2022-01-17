@@ -9,7 +9,7 @@
 </div>
 {% endfunc %}
 
-{% func MulipartForm(link, content string) %}
+{% func MultipartForm(link, content string) %}
 <div class="auth">
     <form enctype="multipart/form-data" action="{%s link %}" method="post">
         {%s= content %}

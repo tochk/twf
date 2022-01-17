@@ -23,7 +23,7 @@ func newApp() *app {
 	a.twfAdmin.MenuFunc = example_templates.AdminMenu
 
 	// if file upload is needed you should use twftemplates.MulipartForm as twf.FormFunc
-	a.twfAdmin.FormFunc = twftemplates.MulipartForm
+	a.twfAdmin.FormFunc = twftemplates.MultipartForm
 
 	return &a
 }

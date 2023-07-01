@@ -12,6 +12,7 @@ type Field struct {
 	ProcessParameters bool
 	Value             string
 	FkInfo            *FkInfo
+	Disabled          bool
 }
 
 type FkInfo struct {

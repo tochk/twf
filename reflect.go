@@ -86,6 +86,8 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 				field.NotShowOnTable = true
 			case e == "process_parameters":
 				field.ProcessParameters = true
+			case e == "disabled":
+				field.Disabled = true
 			default:
 				return nil, fmt.Errorf("twf.getFieldDescription: unexpected parameter in twf tag: %s", e)
 			}

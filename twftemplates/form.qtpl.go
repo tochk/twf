@@ -130,7 +130,15 @@ func StreamFormItem(qw422016 *qt422016.Writer, field datastruct.Field) {
 	qw422016.E().S(field.Title)
 //line form.qtpl:23
 	qw422016.N().S(`</label>
-    <input type="`)
+    <input `)
+//line form.qtpl:24
+	if field.Disabled == "true" {
+//line form.qtpl:24
+		qw422016.N().S(` disabled `)
+//line form.qtpl:24
+	}
+//line form.qtpl:24
+	qw422016.N().S(` type="`)
 //line form.qtpl:24
 	qw422016.E().S(field.Type)
 //line form.qtpl:24
@@ -205,7 +213,15 @@ func StreamFormItemTextarea(qw422016 *qt422016.Writer, field datastruct.Field) {
 	qw422016.E().S(field.Title)
 //line form.qtpl:31
 	qw422016.N().S(`</label>
-    <textarea name="`)
+    <textarea `)
+//line form.qtpl:32
+	if field.Disabled == "true" {
+//line form.qtpl:32
+		qw422016.N().S(` disabled `)
+//line form.qtpl:32
+	}
+//line form.qtpl:32
+	qw422016.N().S(` name="`)
 //line form.qtpl:32
 	qw422016.E().S(field.Name)
 //line form.qtpl:32
@@ -267,7 +283,15 @@ func StreamFormItemSelect(qw422016 *qt422016.Writer, field datastruct.Field, kvs
 	qw422016.E().S(field.Title)
 //line form.qtpl:38
 	qw422016.N().S(`</label>
-    <select class="form-control" id="`)
+    <select `)
+//line form.qtpl:39
+	if field.Disabled == "true" {
+//line form.qtpl:39
+		qw422016.N().S(` disabled `)
+//line form.qtpl:39
+	}
+//line form.qtpl:39
+	qw422016.N().S(` class="form-control" id="`)
 //line form.qtpl:39
 	qw422016.E().S(field.Name)
 //line form.qtpl:39
@@ -357,7 +381,15 @@ func StreamFormItemCheckbox(qw422016 *qt422016.Writer, field datastruct.Field) {
 	qw422016.E().S(field.Title)
 //line form.qtpl:49
 	qw422016.N().S(`</label>
-    <input type="checkbox" name="`)
+    <input type="checkbox" `)
+//line form.qtpl:50
+	if field.Disabled == "true" {
+//line form.qtpl:50
+		qw422016.N().S(` disabled `)
+//line form.qtpl:50
+	}
+//line form.qtpl:50
+	qw422016.N().S(` name="`)
 //line form.qtpl:50
 	qw422016.E().S(field.Name)
 //line form.qtpl:50

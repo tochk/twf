@@ -21,7 +21,7 @@
 {% func FormItem(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <input type="{%s field.Type %}" {% if field.Required %} required {% endif %} name="{%s field.Name %}" class="form-control"
+    <input {% if field.Disabled == "true" %} disabled {% endif %} type="{%s field.Type %}" {% if field.Required %} required {% endif %} name="{%s field.Name %}" class="form-control"
            id="{%s field.Name %}" placeholder="{%s field.Placeholder %}"  value="{%v field.Value %}">
 </div>
 {% endfunc %}
@@ -29,14 +29,14 @@
 {% func FormItemTextarea(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <textarea name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">{%v field.Value %}</textarea>
+    <textarea {% if field.Disabled == "true" %} disabled {% endif %} name="{%s field.Name %}" rows="10" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">{%v field.Value %}</textarea>
 </div>
 {% endfunc %}
 
 {% func FormItemSelect(field datastruct.Field, kvs []datastruct.FkKV, selectedID interface{}) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <select class="form-control" id="{%s field.Name %}" name="{%s field.Name %}">
+    <select {% if field.Disabled == "true" %} disabled {% endif %} class="form-control" id="{%s field.Name %}" name="{%s field.Name %}">
             {% for _, e := range kvs %}
             <option {% if selectedID != nil %} {% if selectedID == e.ID %} selected {% endif %} {% endif %} value="{%v e.ID %}">{%v e.Name %}</option>
             {% endfor %}
@@ -47,6 +47,6 @@
 {% func FormItemCheckbox(field datastruct.Field) %}
 <div class="form-group">
     <label for="{%s field.Name %}">{%s field.Title %}</label>
-    <input type="checkbox" name="{%s field.Name %}" {% if field.Value == "true" %} checked {% endif %}  value="on" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">
+    <input type="checkbox" {% if field.Disabled == "true" %} disabled {% endif %} name="{%s field.Name %}" {% if field.Value == "true" %} checked {% endif %}  value="on" class="form-control" id="{%s field.Name %}" placeholder="{%s field.Placeholder %}">
 </div>
 {% endfunc %}

@@ -2,7 +2,6 @@ package twf
 
 import (
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strings"
@@ -23,11 +22,10 @@ func getFKValue(fksInfo *datastruct.FkInfo, originalValue interface{},
 	if reflect.TypeOf(fksSlice).Kind() != reflect.Slice {
 		return "", "", fmt.Errorf("twf.getFKValue: fks with index %d must be slice, not %s", fksInfo.FksIndex, reflect.TypeOf(fksSlice).Kind().String())
 	}
-	log.Printf("%#v", fksSlice)
+
 	fksValue := reflect.ValueOf(fksSlice)
 	for k := 0; k < fksValue.Len(); k++ {
 		v := fksValue.Index(k)
-		log.Printf("%#v", v)
 		fkKv := datastruct.FkKV{}
 		for l := 0; l < v.NumField(); l++ {
 			fv := v.Field(l)

@@ -58,39 +58,9 @@ func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string
 
 	s := reflect.ValueOf(slice)
 	for i := 0; i < s.Len(); i++ {
-		itemsSlice := make([]interface{}, 0, s.Index(i).NumField())
-		data := map[string]string{}
-		for j := 0; j < s.Index(i).NumField(); j++ {
-			var value interface{}
-			if fields[j].Value == "" {
-				tmp := s.Index(i).Field(j)
-				value = getFieldValue(tmp)
-			} else {
-				if fields[j].ProcessParameters {
-					value = processParameters(fields[j].Value, data)
-				} else {
-					value = fields[j].Value
-				}
-			}
-
-			var fkValue interface{}
-			fkValue, value, err = getFKValue(fields[j].FkInfo, value, fks...)
-			if err != nil {
-				return "", err
-			}
-
-			if fkValue != nil {
-				data[fields[j].Name] = fmt.Sprint(fkValue)
-				if !fields[j].NotShowOnTable {
-					itemsSlice = append(itemsSlice, fkValue)
-				}
-				continue
-			}
-
-			data[fields[j].Name] = fmt.Sprint(value)
-			if !fields[j].NotShowOnTable {
-				itemsSlice = append(itemsSlice, value)
-			}
+		itemsSlice, err := generateTableItemsSlice(s, fields, i, fks)
+		if err != nil {
+			return "", err
 		}
 		content.WriteString(t.ListItemFunc(itemsSlice))
 	}
@@ -100,4 +70,40 @@ func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string
 	res.WriteString(t.ListFunc(fields, content.String()))
 	res.WriteString(t.FooterFunc())
 	return res.String(), nil
+}
+
+func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, fks ...interface{}) ([]interface{}, error) {
+	itemsSlice := make([]interface{}, 0, s.Index(i).NumField())
+	data := map[string]string{}
+	for j := 0; j < s.Index(i).NumField(); j++ {
+		var value interface{}
+
+		if fields[j].ProcessParameters {
+			value = processParameters(fields[j].Value, data)
+		} else {
+			tmp := s.Index(i).Field(j)
+			value = getFieldValue(tmp)
+		}
+
+		var fkValue interface{}
+		fkValue, value, err := getFKValue(fields[j].FkInfo, value, fks...)
+		if err != nil {
+			return nil, err
+		}
+
+		if fkValue != nil {
+			data[fields[j].Name] = fmt.Sprint(fkValue)
+			if !fields[j].NotShowOnTable {
+				itemsSlice = append(itemsSlice, fkValue)
+			}
+			continue
+		}
+
+		data[fields[j].Name] = fmt.Sprint(value)
+		if !fields[j].NotShowOnTable {
+			itemsSlice = append(itemsSlice, value)
+		}
+	}
+
+	return itemsSlice, nil
 }

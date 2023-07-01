@@ -48,6 +48,9 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 		case reflect.Bool:
 			field.Type = "checkbox"
 		}
+		if t, ok := f.Tag.Lookup("twf"); !ok || t == "" {
+			return nil, errors.New("twf tag must be present and not be empty")
+		}
 		tagContent := strings.Split(f.Tag.Get("twf"), ",")
 		for _, e := range tagContent {
 			switch {

@@ -82,7 +82,7 @@ Tags:
 - `not_show_on_table` format: `not_show_on_table` disable showing in table
 - `process_parameters` format: `process_parameters` add template parameters to value (see [template parameters](#Template parameters))
 - `value` format: `value:default value` default value
-- `fks` format: `fks:0,id,name` fks info, (see [FKs](#FKs))
+- `fk` format: `fk:0,id,name` fks info, (see [FKs](#FKs))
 
 ### Template parameters
 

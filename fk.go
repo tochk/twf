@@ -42,7 +42,7 @@ func getFKValue(fksInfo *datastruct.FkInfo, originalValue interface{},
 					}
 				}
 			} else {
-				return "", "", fmt.Errorf("twf tag wit name value must be in all fks structs")
+				return "", "", fmt.Errorf("twf tag with twf:\"name:value\" must be present in all fks structs")
 			}
 		}
 		if originalValue == fkKv.ID {
@@ -88,7 +88,7 @@ func getFKSlice(fksInfo *datastruct.FkInfo, fks ...interface{}) (kvs []datastruc
 					}
 				}
 			} else {
-				return nil, fmt.Errorf("twf tag wit name value must be in all fks structs")
+				return nil, fmt.Errorf("twf tag with twf:\"name:value\" must be present in all fks structs")
 			}
 		}
 

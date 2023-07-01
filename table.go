@@ -72,7 +72,7 @@ func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string
 	return res.String(), nil
 }
 
-func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, fks ...interface{}) ([]interface{}, error) {
+func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, fks []interface{}) ([]interface{}, error) {
 	itemsSlice := make([]interface{}, 0, s.Index(i).NumField())
 	data := map[string]string{}
 	for j := 0; j < s.Index(i).NumField(); j++ {
@@ -86,7 +86,7 @@ func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, 
 		}
 
 		var fkValue interface{}
-		fkValue, value, err := getFKValue(fields[j].FkInfo, value, fks...)
+		fkValue, value, err := getFKValue(fields[j].FkInfo, value, fks)
 		if err != nil {
 			return nil, err
 		}

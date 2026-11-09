@@ -5,15 +5,28 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tochk/twf/datastruct"
 	"reflect"
+	"sort"
 	"strings"
 )
 
-// processParameters replaces {field} in value
-func processParameters(value string, fields map[string]string) interface{} {
-	for k, v := range fields {
-		value = strings.Replace(value, "{"+k+"}", v, -1)
+// processParameters replaces {field} in value. Replacement is done in a single pass,
+// so substituted values are never expanded again
+func processParameters(value string, fields map[string]string) string {
+	if len(fields) == 0 {
+		return value
 	}
-	return value
+
+	keys := make([]string, 0, len(fields))
+	for k := range fields {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	oldNew := make([]string, 0, len(keys)*2)
+	for _, k := range keys {
+		oldNew = append(oldNew, "{"+k+"}", fields[k])
+	}
+	return strings.NewReplacer(oldNew...).Replace(value)
 }
 
 // filterTableFields filters fields is TWF.NotShowOnTable flag is enabled
@@ -31,18 +44,12 @@ func filterTableFields(fields []datastruct.Field) []datastruct.Field {
 
 // Table return table with contents of given slice
 func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string, error) {
-	if reflect.TypeOf(slice).Kind() != reflect.Slice {
-		return "", fmt.Errorf("twf.Table: expected slice, got %s", reflect.TypeOf(slice).Kind().String())
-	}
-
-	for i, fkSlice := range fks {
-		if reflect.TypeOf(fkSlice).Kind() != reflect.Slice {
-			return "", fmt.Errorf("twf.Table: error on fks idx %d expected slice, got %s", i, reflect.TypeOf(fkSlice).Kind().String())
-		}
-	}
-
 	item, err := getSliceElementPtrType(slice)
 	if err != nil {
+		return "", errors.Wrap(err, "twf.Table")
+	}
+
+	if err := validateFks(fks); err != nil {
 		return "", errors.Wrap(err, "twf.Table")
 	}
 
@@ -60,7 +67,7 @@ func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string
 	for i := 0; i < s.Len(); i++ {
 		itemsSlice, err := generateTableItemsSlice(s, fields, i, fks)
 		if err != nil {
-			return "", err
+			return "", errors.Wrap(err, "twf.Table")
 		}
 		content.WriteString(t.ListItemFunc(itemsSlice))
 	}

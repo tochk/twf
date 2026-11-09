@@ -7,14 +7,16 @@ import (
 	"strings"
 )
 
-// EditForm returns page with add form (without values, if you want a form with values from struct - use AddForm)
+// EditForm returns page with edit form filled with values from item. `value` tag is used only for fields with
+// process_parameters, real values are never overridden
 func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...interface{}) (string, error) {
-	itemType := reflect.TypeOf(item)
-	if itemType.Kind() != reflect.Ptr {
-		return "", fmt.Errorf("twf.getSliceElementPtrType: expected ptr to struct, got %s", itemType.Kind().String())
+	s, err := structPtrValue("twf.EditForm", item)
+	if err != nil {
+		return "", err
 	}
-	if itemType.Elem().Kind() != reflect.Struct {
-		return "", fmt.Errorf("twf.getSliceElementPtrType: expected ptr to struct, got ptr to %s", itemType.Elem().Kind().String())
+
+	if err := validateFks(fks); err != nil {
+		return "", errors.Wrap(err, "twf.EditForm")
 	}
 
 	fields, err := getFieldDescription(reflect.TypeOf(item))
@@ -26,28 +28,24 @@ func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...i
 	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 
-	s := reflect.ValueOf(item).Elem()
 	data := map[string]string{}
 	for i := 0; i < s.NumField(); i++ {
 		var value interface{}
 		field := fields[i]
 
-		if fields[i].Value == "" {
-			value = getFieldValue(s.Field(i))
+		if field.ProcessParameters && field.Value != "" {
+			value = processParameters(field.Value, data)
 		} else {
-			if fields[i].ProcessParameters {
-				value = processParameters(fields[i].Value, data)
-			} else {
-				value = fields[i].Value
-			}
+			value = getFieldValue(s.Field(i))
 		}
 
-		kvs, err := getFKSlice(fields[i].FkInfo, fks...)
+		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
 			return "", errors.Wrap(err, "twf.EditForm")
 		}
 
 		field.Value = fmt.Sprint(value)
+		data[field.Name] = field.Value
 
 		if field.NoEdit {
 			continue

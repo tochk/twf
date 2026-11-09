@@ -12,12 +12,15 @@ import (
 // getSliceElementPtrType returns pointer to slice element
 func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
 	s := reflect.TypeOf(slice)
+	if s == nil {
+		return nil, errors.New("twf.getSliceElementPtrType: expected slice, got nil")
+	}
 	if s.Kind() != reflect.Slice {
 		return nil, fmt.Errorf("twf.getSliceElementPtrType: expected slice, got %s", s.Kind().String())
 	}
 	s = s.Elem()
 	if s.Kind() != reflect.Struct {
-		return nil, fmt.Errorf("twf.getSliceElementPtrType: slice containts %s, expected struct", s.Kind().String())
+		return nil, fmt.Errorf("twf.getSliceElementPtrType: slice contains %s, expected struct", s.Kind().String())
 	}
 	s = reflect.PtrTo(s)
 	return s, nil
@@ -41,6 +44,9 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			Type: "text",
 		}
 		f := s.Field(i)
+		if !f.IsExported() {
+			return nil, fmt.Errorf("twf.getFieldDescription: field %s must be exported", f.Name)
+		}
 		switch f.Type.Kind() {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Float32, reflect.Float64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
@@ -62,6 +68,16 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 				fkID, err := strconv.Atoi(fkInfo[0])
 				if err != nil {
 					return nil, errors.Wrap(err, "twf.getFieldDescription: can't convert fk id to int")
+				}
+				if fkID < 0 {
+					return nil, fmt.Errorf("twf.getFieldDescription: fk index must not be negative, got %d", fkID)
+				}
+				fkType := f.Type
+				if fkType.Kind() == reflect.Ptr {
+					fkType = fkType.Elem()
+				}
+				if !fkType.Comparable() {
+					return nil, fmt.Errorf("twf.getFieldDescription: fk field %s must be of comparable type, got %s", f.Name, f.Type.String())
 				}
 				field.FkInfo = &datastruct.FkInfo{
 					FksIndex: fkID,
@@ -92,12 +108,31 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			case e == "disabled":
 				field.Disabled = true
 			default:
-				return nil, fmt.Errorf("twf.getFieldDescription: unexpected parameter in twf tag: %s", e)
+				return nil, fmt.Errorf("twf.getFieldDescription: unexpected parameter in twf tag: %q", e)
 			}
 		}
 		fields = append(fields, field)
 	}
 	return fields, nil
+}
+
+// structPtrValue checks that item is a non-nil pointer to struct and returns the struct value
+func structPtrValue(fn string, item interface{}) (reflect.Value, error) {
+	t := reflect.TypeOf(item)
+	if t == nil {
+		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got nil", fn)
+	}
+	if t.Kind() != reflect.Ptr {
+		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got %s", fn, t.Kind().String())
+	}
+	if t.Elem().Kind() != reflect.Struct {
+		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got ptr to %s", fn, t.Elem().Kind().String())
+	}
+	v := reflect.ValueOf(item)
+	if v.IsNil() {
+		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got nil ptr", fn)
+	}
+	return v.Elem(), nil
 }
 
 // getFieldValue returns value of the field. Returns <nil> if value is nil

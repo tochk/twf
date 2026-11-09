@@ -1,62 +1,73 @@
 package twf
 
 import (
-	"fmt"
 	"github.com/pkg/errors"
+	"github.com/tochk/twf/datastruct"
 	"io/ioutil"
 	"net/http"
 	"reflect"
 	"strconv"
 )
 
+// absentMeansFalse reports whether a bool field missing from the form must be set to false.
+// Browsers don't submit unchecked checkboxes, but they don't submit disabled inputs either,
+// and no_edit fields are not rendered in the edit form at all, so those are left unchanged
+func absentMeansFalse(field datastruct.Field, kind reflect.Kind) bool {
+	return kind == reflect.Bool && field.Type == "checkbox" && !field.Disabled && !field.NoEdit
+}
+
 // PostFormToStruct marshal post form to given struct
 func PostFormToStruct(item interface{}, r *http.Request) error {
-	if reflect.TypeOf(item).Kind() != reflect.Ptr {
-		return fmt.Errorf("twf.PostFormToStruct: expected ptr, got %s", reflect.TypeOf(item).Kind().String())
+	s, err := structPtrValue("twf.PostFormToStruct", item)
+	if err != nil {
+		return err
 	}
 
-	if reflect.TypeOf(item).Elem().Kind() != reflect.Struct {
-		return fmt.Errorf("twf.PostFormToStruct: expected ptr to struct, got ptr to %s", reflect.TypeOf(item).Elem().Kind())
+	if r == nil {
+		return errors.New("twf.PostFormToStruct: request is nil")
 	}
 
 	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
 		return errors.Wrap(err, "twf.PostFormToStruct")
 	}
+	// unparsed form means no data at all, nothing is considered absent
+	formParsed := r.PostForm != nil
 	postFormMap := map[string]string{}
 	for k := range r.PostForm {
 		postFormMap[k] = r.PostForm.Get(k)
 	}
-	s := reflect.ValueOf(item).Elem()
 	for i := 0; i < s.NumField(); i++ {
-		if _, ok := postFormMap[fields[i].Name]; !ok && fields[i].Type != "file" {
+		f := s.Field(i)
+		formValue, ok := postFormMap[fields[i].Name]
+		if !ok && fields[i].Type != "file" && !(formParsed && absentMeansFalse(fields[i], f.Kind())) {
 			continue
 		}
-		switch s.Field(i).Kind() {
+		switch f.Kind() {
 		case reflect.String:
-			s.Field(i).SetString(postFormMap[fields[i].Name])
+			f.SetString(formValue)
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			v, err := strconv.ParseInt(postFormMap[fields[i].Name], 10, 64)
+			v, err := strconv.ParseInt(formValue, 10, f.Type().Bits())
 			if err != nil {
 				return errors.Wrap(err, "twf.PostFormToStruct")
 			}
-			s.Field(i).SetInt(v)
+			f.SetInt(v)
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			v, err := strconv.ParseUint(postFormMap[fields[i].Name], 10, 64)
+			v, err := strconv.ParseUint(formValue, 10, f.Type().Bits())
 			if err != nil {
 				return errors.Wrap(err, "twf.PostFormToStruct")
 			}
-			s.Field(i).SetUint(v)
+			f.SetUint(v)
 		case reflect.Float64, reflect.Float32:
-			v, err := strconv.ParseFloat(postFormMap[fields[i].Name], 64)
+			v, err := strconv.ParseFloat(formValue, f.Type().Bits())
 			if err != nil {
 				return errors.Wrap(err, "twf.PostFormToStruct")
 			}
-			s.Field(i).SetFloat(v)
+			f.SetFloat(v)
 		case reflect.Bool:
-			s.Field(i).SetBool(postFormMap[fields[i].Name] == "on")
+			f.SetBool(formValue == "on")
 		case reflect.Slice:
-			if s.Field(i).Type() == reflect.TypeOf([]byte{}) && fields[i].Type == "file" {
+			if f.Type() == reflect.TypeOf([]byte{}) && fields[i].Type == "file" {
 				file, _, err := r.FormFile(fields[i].Name)
 				if err == http.ErrMissingFile {
 					continue
@@ -68,7 +79,7 @@ func PostFormToStruct(item interface{}, r *http.Request) error {
 				if err != nil {
 					return errors.Wrap(err, "twf.PostFormToStruct")
 				}
-				s.Field(i).SetBytes(data)
+				f.SetBytes(data)
 			}
 		}
 	}

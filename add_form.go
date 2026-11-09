@@ -7,17 +7,18 @@ import (
 	"strings"
 )
 
-// AddForm returns page with add form (without values, if you want a form with values from struct - use EditForm)
+// AddForm returns page with add form. Values from `value` tag are used as defaults, otherwise values from item are used
 func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interface{}) (string, error) {
-	itemType := reflect.TypeOf(item)
-	if itemType.Kind() != reflect.Ptr {
-		return "", fmt.Errorf("twf.getSliceElementPtrType: expected ptr to struct, got %s", itemType.Kind().String())
-	}
-	if itemType.Elem().Kind() != reflect.Struct {
-		return "", fmt.Errorf("twf.getSliceElementPtrType: expected ptr to struct, got ptr to %s", itemType.Elem().Kind().String())
+	s, err := structPtrValue("twf.AddForm", item)
+	if err != nil {
+		return "", err
 	}
 
-	fields, err := getFieldDescription(itemType)
+	if err := validateFks(fks); err != nil {
+		return "", errors.Wrap(err, "twf.AddForm")
+	}
+
+	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
 		return "", errors.Wrap(err, "twf.AddForm")
 	}
@@ -26,12 +27,12 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 	res.WriteString(t.MenuFunc())
 	content := strings.Builder{}
 
-	s := reflect.ValueOf(item).Elem()
 	data := map[string]string{}
 	for i := 0; i < s.NumField(); i++ {
 		var value interface{}
 		field := fields[i]
-		if fields[i].Value == "" {
+		switch {
+		case field.Value == "":
 			tmp := s.Field(i)
 			if tmp.Kind() == reflect.Ptr {
 				if tmp.IsNil() {
@@ -42,20 +43,19 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 			} else {
 				value = tmp.Interface()
 			}
-		} else {
-			if fields[i].ProcessParameters {
-				value = processParameters(fields[i].Value, data)
-			} else {
-				value = fields[i].Value
-			}
+		case field.ProcessParameters:
+			value = processParameters(field.Value, data)
+		default:
+			value = field.Value
 		}
 
-		kvs, err := getFKSlice(fields[i].FkInfo, fks...)
+		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
 			return "", errors.Wrap(err, "twf.AddForm")
 		}
 
 		field.Value = fmt.Sprint(value)
+		data[field.Name] = field.Value
 
 		if field.NoCreate {
 			continue

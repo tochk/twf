@@ -72,7 +72,7 @@ Tags:
     - `textarea`
     - `password`
     - `number` - default for numeric types
-    - `checkbox` - default for bool
+    - `checkbox` - default for bool. `PostFormToStruct` sets checkbox missing from the form to false (browsers don't submit unchecked checkboxes), except `disabled` and `no_edit` fields
     - `file` - use this type for marshal file from form to []byte type
     - `select` - default for fks
 - `placeholder` format: `placeholder:Enter ID` used in form as placeholder
@@ -81,13 +81,13 @@ Tags:
 - `no_edit` format: `no_edit` disable showing in edit form
 - `not_show_on_table` format: `not_show_on_table` disable showing in table
 - `process_parameters` format: `process_parameters` add template parameters to value (see [template parameters](#Template parameters))
-- `value` format: `value:default value` default value
+- `value` format: `value:default value` default value in add form. Edit form and table always show real values, `value` is used there only with `process_parameters`
 - `disabled` format: `disabled` disable field in forms
-- `fk` format: `fk:0,id,name` fks info, (see [FKs](#FKs))
+- `fk` format: `fk:0;id;name` fks info, semicolon-separated: fks slice index, id field name, name field name (see [FKs](#FKs))
 
 ### Template parameters
 
-If `process_parameters` is enabled replaces template parameters in value
+If `process_parameters` is enabled replaces template parameters in value with values of fields declared before this field
 
 For example, edit link in table: 
 

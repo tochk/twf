@@ -46,7 +46,7 @@ func Test_processParameters(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			// repeat to catch map iteration order dependency
-			for i := 0; i < 20; i++ {
+			for range 20 {
 				if got := processParameters(tt.value, tt.fields); got != tt.want {
 					t.Fatalf("processParameters() = %q, want %q", got, tt.want)
 				}
@@ -138,107 +138,107 @@ func Test_generateTableItemsSlice(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		slice   interface{}
+		slice   any
 		i       int
-		fks     []interface{}
-		want    []interface{}
+		fks     []any
+		want    []any
 		wantErr string
 	}{
 		{
 			name:  "default values should not affect real values",
 			slice: []defaultTest{{Name: "me"}},
-			want:  []interface{}{"me"},
+			want:  []any{"me"},
 		},
 		{
 			name:  "process parameters should work properly",
 			slice: []defaultTest2{{ID: 1, Name: "me"}},
-			want:  []interface{}{"me1"},
+			want:  []any{"me1"},
 		},
 		{
 			name:  "fks",
 			slice: []defaultTest3{{Name: "name"}},
-			fks:   []interface{}{[]defaultFks3{{"test"}, {"name"}}},
-			want:  []interface{}{"name"},
+			fks:   []any{[]defaultFks3{{"test"}, {"name"}}},
+			want:  []any{"name"},
 		},
 		{
 			name:  "plain values keep their types",
 			slice: []plain{{1, "a", true}},
-			want:  []interface{}{1, "a", true},
+			want:  []any{1, "a", true},
 		},
 		{
 			name:  "pointers",
-			slice: []pointers{{P: intPtr(5)}},
-			want:  []interface{}{5, "<nil>"},
+			slice: []pointers{{P: new(5)}},
+			want:  []any{5, "<nil>"},
 		},
 		{
 			name:  "process parameters with several fields",
 			slice: []ppMulti{{ID: 7, Login: "bob", Link: "ignored"}},
-			want:  []interface{}{7, "bob", "/u/7/bob"},
+			want:  []any{7, "bob", "/u/7/bob"},
 		},
 		{
 			// pinned: only fields declared before the process_parameters field are available
 			name:  "process parameters can't use later fields",
 			slice: []ppLater{{ID: 1}},
-			want:  []interface{}{"x{id}", 1},
+			want:  []any{"x{id}", 1},
 		},
 		{
 			name:  "process parameters with nil pointer",
 			slice: []ppNil{{}},
-			want:  []interface{}{"<nil>", "<nil>"},
+			want:  []any{"<nil>", "<nil>"},
 		},
 		{
 			name:  "process parameters without value is empty",
 			slice: []ppEmpty{{S: "real"}},
-			want:  []interface{}{""},
+			want:  []any{""},
 		},
 		{
 			name:  "fk resolved to name",
 			slice: []withFk{{G: 2}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{"users"},
+			fks:   []any{fkGroups},
+			want:  []any{"users"},
 		},
 		{
 			name:  "fk not found shows raw value",
 			slice: []withFk{{G: 99}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{99},
+			fks:   []any{fkGroups},
+			want:  []any{99},
 		},
 		{
 			name:  "fk type mismatch shows raw value",
 			slice: []withFk64{{G: 1}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{int64(1)},
+			fks:   []any{fkGroups},
+			want:  []any{int64(1)},
 		},
 		{
 			name:  "fk on pointer field",
-			slice: []withFkPtr{{G: intPtr(1)}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{"admins"},
+			slice: []withFkPtr{{G: new(1)}},
+			fks:   []any{fkGroups},
+			want:  []any{"admins"},
 		},
 		{
 			name:  "fk on nil pointer field",
 			slice: []withFkPtr{{}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{"<nil>"},
+			fks:   []any{fkGroups},
+			want:  []any{"<nil>"},
 		},
 		{
 			// pinned: process parameters receive fk name, not id
 			name:  "process parameters use resolved fk name",
 			slice: []ppFk{{G: 1}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{"admins", "/g/admins"},
+			fks:   []any{fkGroups},
+			want:  []any{"admins", "/g/admins"},
 		},
 		{
 			name:  "hidden fk still feeds process parameters",
 			slice: []ppHiddenFk{{G: 2}},
-			fks:   []interface{}{fkGroups},
-			want:  []interface{}{"/g/users"},
+			fks:   []any{fkGroups},
+			want:  []any{"/g/users"},
 		},
 		{
 			name:  "row index selects row",
 			slice: []plain{{1, "a", true}, {2, "b", false}},
 			i:     1,
-			want:  []interface{}{2, "b", false},
+			want:  []any{2, "b", false},
 		},
 		{
 			name:    "fk error propagates",
@@ -294,8 +294,8 @@ func TestTWF_Table(t *testing.T) {
 
 	tests := []struct {
 		name      string
-		slice     interface{}
-		fks       []interface{}
+		slice     any
+		fks       []any
 		want      string
 		wantList  []string
 		wantItems int
@@ -304,7 +304,7 @@ func TestTWF_Table(t *testing.T) {
 		{
 			name:      "fks no panic",
 			slice:     []defaultTest3{{"test"}},
-			fks:       []interface{}{[]defaultFks3{{"test"}, {"name"}}},
+			fks:       []any{[]defaultFks3{{"test"}, {"name"}}},
 			want:      "H(Users)ML[name]{R[test]}F",
 			wantList:  []string{"name"},
 			wantItems: 1,
@@ -340,7 +340,7 @@ func TestTWF_Table(t *testing.T) {
 		{
 			name:      "fk resolved and unused fks allowed",
 			slice:     []withFk{{1, 2}, {2, 5}},
-			fks:       []interface{}{fkGroups, []fkOther{}},
+			fks:       []any{fkGroups, []fkOther{}},
 			want:      "H(Users)ML[id,g]{R[1|users]R[2|5]}F",
 			wantList:  []string{"id", "g"},
 			wantItems: 2,
@@ -363,37 +363,37 @@ func TestTWF_Table(t *testing.T) {
 		{
 			name:    "nil fks element",
 			slice:   []row{},
-			fks:     []interface{}{nil},
+			fks:     []any{nil},
 			wantErr: "twf.Table: twf.validateFk: fks with index 0 must be slice, got nil",
 		},
 		{
 			name:    "non-slice fks element",
 			slice:   []row{},
-			fks:     []interface{}{fkGroups, 5},
+			fks:     []any{fkGroups, 5},
 			wantErr: "fks with index 1 must be slice, not int",
 		},
 		{
 			name:    "fks slice of int",
 			slice:   []row{},
-			fks:     []interface{}{[]int{1}},
+			fks:     []any{[]int{1}},
 			wantErr: "must be slice of structs, got slice of int",
 		},
 		{
 			name:    "fks struct without tags",
 			slice:   []row{},
-			fks:     []interface{}{[]fkUntagged{}},
+			fks:     []any{[]fkUntagged{}},
 			wantErr: "must be present in all fks structs",
 		},
 		{
 			name:    "fks struct with unexported field",
 			slice:   []row{},
-			fks:     []interface{}{[]fkUnexported{}},
+			fks:     []any{[]fkUnexported{}},
 			wantErr: "field id must be exported",
 		},
 		{
 			name:    "fk index out of range",
 			slice:   []withFk1{{1}},
-			fks:     []interface{}{fkGroups},
+			fks:     []any{fkGroups},
 			wantErr: "twf.Table: twf.getFKValue: fks index 1 not provided",
 		},
 	}

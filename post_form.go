@@ -1,23 +1,25 @@
 package twf
 
 import (
-	"github.com/pkg/errors"
-	"github.com/tochk/twf/datastruct"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"reflect"
 	"strconv"
+
+	"github.com/pkg/errors"
+
+	"github.com/tochk/twf/datastruct"
 )
 
 // absentMeansFalse reports whether a bool field missing from the form must be set to false.
 // Browsers don't submit unchecked checkboxes, but they don't submit disabled inputs either,
 // and no_edit fields are not rendered in the edit form at all, so those are left unchanged
-func absentMeansFalse(field datastruct.Field, kind reflect.Kind) bool {
-	return kind == reflect.Bool && field.Type == "checkbox" && !field.Disabled && !field.NoEdit
+func absentMeansFalse(field *datastruct.Field, kind reflect.Kind) bool {
+	return kind == reflect.Bool && field.Type == typeCheckbox && !field.Disabled && !field.NoEdit
 }
 
 // PostFormToStruct marshal post form to given struct
-func PostFormToStruct(item interface{}, r *http.Request) error {
+func PostFormToStruct(item any, r *http.Request) error {
 	s, err := structPtrValue("twf.PostFormToStruct", item)
 	if err != nil {
 		return err
@@ -40,7 +42,7 @@ func PostFormToStruct(item interface{}, r *http.Request) error {
 	for i := 0; i < s.NumField(); i++ {
 		f := s.Field(i)
 		formValue, ok := postFormMap[fields[i].Name]
-		if !ok && fields[i].Type != "file" && !(formParsed && absentMeansFalse(fields[i], f.Kind())) {
+		if !ok && fields[i].Type != typeFile && (!formParsed || !absentMeansFalse(&fields[i], f.Kind())) {
 			continue
 		}
 		switch f.Kind() {
@@ -67,15 +69,15 @@ func PostFormToStruct(item interface{}, r *http.Request) error {
 		case reflect.Bool:
 			f.SetBool(formValue == "on")
 		case reflect.Slice:
-			if f.Type() == reflect.TypeOf([]byte{}) && fields[i].Type == "file" {
+			if f.Type() == reflect.TypeFor[[]byte]() && fields[i].Type == typeFile {
 				file, _, err := r.FormFile(fields[i].Name)
-				if err == http.ErrMissingFile {
+				if errors.Is(err, http.ErrMissingFile) {
 					continue
 				}
 				if err != nil {
 					return errors.Wrap(err, "twf.PostFormToStruct")
 				}
-				data, err := ioutil.ReadAll(file)
+				data, err := io.ReadAll(file)
 				if err != nil {
 					return errors.Wrap(err, "twf.PostFormToStruct")
 				}

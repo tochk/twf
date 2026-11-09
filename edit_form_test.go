@@ -53,10 +53,10 @@ func TestTWF_EditForm(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		item         interface{}
-		fks          []interface{}
+		item         any
+		fks          []any
 		want         string
-		wantSelected []interface{}
+		wantSelected []any
 	}{
 		{
 			name: "dispatch by type",
@@ -66,28 +66,28 @@ func TestTWF_EditForm(t *testing.T) {
 		{
 			name:         "select gets raw field value as selected",
 			item:         &selects{G: 2, S: "x"},
-			fks:          []interface{}{fkGroups},
+			fks:          []any{fkGroups},
 			want:         "H(Edit)MFORM(/edit){S(g=2;[1:admins,2:users];2)S(s=x;nil;x)}F",
-			wantSelected: []interface{}{2, "x"},
+			wantSelected: []any{2, "x"},
 		},
 		{
 			name:         "select on pointer field gets dereferenced value",
-			item:         &ptrFk{G: intPtr(1)},
-			fks:          []interface{}{fkGroups},
+			item:         &ptrFk{G: new(1)},
+			fks:          []any{fkGroups},
 			want:         "H(Edit)MFORM(/edit){S(g=1;[1:admins,2:users];1)}F",
-			wantSelected: []interface{}{1},
+			wantSelected: []any{1},
 		},
 		{
 			// pinned: nil pointer is rendered and selected as "<nil>" string
 			name:         "select on nil pointer field",
 			item:         &ptrFk{},
-			fks:          []interface{}{fkGroups},
+			fks:          []any{fkGroups},
 			want:         "H(Edit)MFORM(/edit){S(g=<nil>;[1:admins,2:users];<nil>)}F",
-			wantSelected: []interface{}{"<nil>"},
+			wantSelected: []any{"<nil>"},
 		},
 		{
 			name: "value tag never overrides real values, including zero values",
-			item: &values{Def: "real", PV: intPtr(5)},
+			item: &values{Def: "real", PV: new(5)},
 			want: "H(Edit)MFORM(/edit){T(def=real)T(zero=)T(n=0)C(b=false)T(p=<nil>)T(pv=5)}F",
 		},
 		{
@@ -103,7 +103,7 @@ func TestTWF_EditForm(t *testing.T) {
 		{
 			name: "process parameters use <nil> pointer and raw fk id",
 			item: &ppRefs{G: 1},
-			fks:  []interface{}{fkGroups},
+			fks:  []any{fkGroups},
 			want: "H(Edit)MFORM(/edit){S(g=1;[1:admins,2:users];1)T(ref=<nil>|1)}F",
 		},
 		{

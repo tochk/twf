@@ -1,3 +1,4 @@
+// Command examples is a demo admin app built with twf.
 package main
 
 import (

@@ -1,3 +1,5 @@
+// Package twf generates HTML admin pages (tables, add and edit forms) from Go
+// structs described by twf struct tags, and parses posted forms back into them.
 package twf
 
 import (
@@ -5,17 +7,26 @@ import (
 	"github.com/tochk/twf/twftemplates"
 )
 
+// Field types with special handling in forms and form parsing.
+const (
+	typeText     = "text"
+	typeCheckbox = "checkbox"
+	typeSelect   = "select"
+	typeTextarea = "textarea"
+	typeFile     = "file"
+)
+
 // TWF base struct
 type TWF struct {
 	HeadFunc         func(string) string
 	MenuFunc         func() string
 	ListFunc         func([]datastruct.Field, string) string
-	ListItemFunc     func([]interface{}) string
+	ListItemFunc     func([]any) string
 	FooterFunc       func() string
 	FormFunc         func(string, string) string
 	FormItemText     func(datastruct.Field) string
 	FormItemTextarea func(datastruct.Field) string
-	FormItemSelect   func(datastruct.Field, []datastruct.FkKV, interface{}) string
+	FormItemSelect   func(datastruct.Field, []datastruct.FkKV, any) string
 	FormItemCheckbox func(datastruct.Field) string
 }
 

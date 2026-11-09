@@ -11,7 +11,7 @@ import (
 type fkErrorCase struct {
 	name    string
 	info    *datastruct.FkInfo
-	fks     []interface{}
+	fks     []any
 	wantErr string
 }
 
@@ -26,61 +26,61 @@ func fkErrorCases() []fkErrorCase {
 		{
 			name:    "index out of range",
 			info:    &datastruct.FkInfo{FksIndex: 1, ID: "id", Name: "name"},
-			fks:     []interface{}{fkGroups},
+			fks:     []any{fkGroups},
 			wantErr: "fks index 1 not provided",
 		},
 		{
 			name:    "negative index",
 			info:    &datastruct.FkInfo{FksIndex: -1, ID: "id", Name: "name"},
-			fks:     []interface{}{fkGroups},
+			fks:     []any{fkGroups},
 			wantErr: "fks index -1 not provided",
 		},
 		{
 			name:    "nil fks element",
 			info:    fkGroupInfo,
-			fks:     []interface{}{nil},
+			fks:     []any{nil},
 			wantErr: "fks with index 0 must be slice, got nil",
 		},
 		{
 			name:    "fks element is not slice",
 			info:    fkGroupInfo,
-			fks:     []interface{}{fkGroup{1, "admins"}},
+			fks:     []any{fkGroup{1, "admins"}},
 			wantErr: "fks with index 0 must be slice, not struct",
 		},
 		{
 			name:    "fks element is slice of int",
 			info:    fkGroupInfo,
-			fks:     []interface{}{[]int{1}},
+			fks:     []any{[]int{1}},
 			wantErr: "fks with index 0 must be slice of structs, got slice of int",
 		},
 		{
 			name:    "fks element is slice of pointers",
 			info:    fkGroupInfo,
-			fks:     []interface{}{[]*fkGroup{{1, "admins"}}},
+			fks:     []any{[]*fkGroup{{1, "admins"}}},
 			wantErr: "fks with index 0 must be slice of structs, got slice of ptr",
 		},
 		{
 			name:    "fks struct field without twf tag",
 			info:    fkGroupInfo,
-			fks:     []interface{}{[]fkUntagged{{1, "admins"}}},
+			fks:     []any{[]fkUntagged{{1, "admins"}}},
 			wantErr: "must be present in all fks structs, missing on field Name",
 		},
 		{
 			name:    "empty fks slice of struct without twf tag",
 			info:    fkGroupInfo,
-			fks:     []interface{}{[]fkUntagged{}},
+			fks:     []any{[]fkUntagged{}},
 			wantErr: "must be present in all fks structs, missing on field Name",
 		},
 		{
 			name:    "fks struct with unexported field",
 			info:    fkGroupInfo,
-			fks:     []interface{}{[]fkUnexported{{1, "admins"}}},
+			fks:     []any{[]fkUnexported{{1, "admins"}}},
 			wantErr: "fks with index 0: field id must be exported",
 		},
 		{
 			name:    "selected fks element is invalid",
 			info:    &datastruct.FkInfo{FksIndex: 1, ID: "id", Name: "name"},
-			fks:     []interface{}{fkGroups, 5},
+			fks:     []any{fkGroups, 5},
 			wantErr: "fks with index 1 must be slice, not int",
 		},
 	}
@@ -94,10 +94,10 @@ func Test_getFKValue(t *testing.T) {
 	tests := []struct {
 		name          string
 		info          *datastruct.FkInfo
-		originalValue interface{}
-		fks           []interface{}
-		wantFkValue   interface{}
-		wantValue     interface{}
+		originalValue any
+		fks           []any
+		wantFkValue   any
+		wantValue     any
 	}{
 		{
 			name: "default",
@@ -107,7 +107,7 @@ func Test_getFKValue(t *testing.T) {
 				Name:     "name",
 			},
 			originalValue: "test",
-			fks: []interface{}{
+			fks: []any{
 				[]defaultFks{{"test"}, {"test2"}},
 			},
 			wantFkValue: "test",
@@ -125,7 +125,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "found by id, name tag is not first option",
 			info:          fkGroupInfo,
 			originalValue: 2,
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   "users",
 			wantValue:     2,
 		},
@@ -133,7 +133,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "first match wins on duplicated ids",
 			info:          fkGroupInfo,
 			originalValue: 1,
-			fks:           []interface{}{[]fkGroup{{1, "first"}, {1, "second"}}},
+			fks:           []any{[]fkGroup{{1, "first"}, {1, "second"}}},
 			wantFkValue:   "first",
 			wantValue:     1,
 		},
@@ -141,7 +141,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "selects fks slice by index",
 			info:          &datastruct.FkInfo{FksIndex: 1, ID: "id", Name: "name"},
 			originalValue: 1,
-			fks:           []interface{}{[]fkOther{{"x"}}, fkGroups},
+			fks:           []any{[]fkOther{{"x"}}, fkGroups},
 			wantFkValue:   "admins",
 			wantValue:     1,
 		},
@@ -149,7 +149,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "not found",
 			info:          fkGroupInfo,
 			originalValue: 3,
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   nil,
 			wantValue:     3,
 		},
@@ -157,7 +157,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "empty fks slice",
 			info:          fkGroupInfo,
 			originalValue: 1,
-			fks:           []interface{}{[]fkGroup{}},
+			fks:           []any{[]fkGroup{}},
 			wantFkValue:   nil,
 			wantValue:     1,
 		},
@@ -165,7 +165,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "id type mismatch is not a match",
 			info:          fkGroupInfo,
 			originalValue: int64(1),
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   nil,
 			wantValue:     int64(1),
 		},
@@ -173,7 +173,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "nil pointer value is not a match",
 			info:          fkGroupInfo,
 			originalValue: "<nil>",
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   nil,
 			wantValue:     "<nil>",
 		},
@@ -181,7 +181,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "id field missing in fks struct",
 			info:          &datastruct.FkInfo{FksIndex: 0, ID: "uid", Name: "name"},
 			originalValue: 1,
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   nil,
 			wantValue:     1,
 		},
@@ -190,7 +190,7 @@ func Test_getFKValue(t *testing.T) {
 			name:          "name field missing in fks struct",
 			info:          &datastruct.FkInfo{FksIndex: 0, ID: "id", Name: "title"},
 			originalValue: 1,
-			fks:           []interface{}{fkGroups},
+			fks:           []any{fkGroups},
 			wantFkValue:   nil,
 			wantValue:     1,
 		},
@@ -229,44 +229,44 @@ func Test_getFKSlice(t *testing.T) {
 	tests := []struct {
 		name   string
 		info   *datastruct.FkInfo
-		fks    []interface{}
+		fks    []any
 		want   string
-		wantID []interface{}
+		wantID []any
 	}{
 		{
 			name:   "all elements in order",
 			info:   fkGroupInfo,
-			fks:    []interface{}{fkGroups},
+			fks:    []any{fkGroups},
 			want:   "[1:admins,2:users]",
-			wantID: []interface{}{1, 2},
+			wantID: []any{1, 2},
 		},
 		{
 			name:   "selects fks slice by index",
 			info:   &datastruct.FkInfo{FksIndex: 1, ID: "code", Name: "code"},
-			fks:    []interface{}{fkGroups, []fkOther{{"a"}, {"b"}}},
+			fks:    []any{fkGroups, []fkOther{{"a"}, {"b"}}},
 			want:   "[a:a,b:b]",
-			wantID: []interface{}{"a", "b"},
+			wantID: []any{"a", "b"},
 		},
 		{
 			name:   "empty fks slice",
 			info:   fkGroupInfo,
-			fks:    []interface{}{[]fkGroup{}},
+			fks:    []any{[]fkGroup{}},
 			want:   "[]",
-			wantID: []interface{}{},
+			wantID: []any{},
 		},
 		{
 			name:   "name field missing",
 			info:   &datastruct.FkInfo{FksIndex: 0, ID: "id", Name: "title"},
-			fks:    []interface{}{fkGroups[:1]},
+			fks:    []any{fkGroups[:1]},
 			want:   "[1:<nil>]",
-			wantID: []interface{}{1},
+			wantID: []any{1},
 		},
 		{
 			name:   "id field missing",
 			info:   &datastruct.FkInfo{FksIndex: 0, ID: "uid", Name: "name"},
-			fks:    []interface{}{fkGroups[:1]},
+			fks:    []any{fkGroups[:1]},
 			want:   "[<nil>:admins]",
-			wantID: []interface{}{nil},
+			wantID: []any{nil},
 		},
 	}
 	for _, tt := range tests {
@@ -276,7 +276,7 @@ func Test_getFKSlice(t *testing.T) {
 			if got := kvString(kvs); got != tt.want {
 				t.Errorf("getFKSlice() = %s, want %s", got, tt.want)
 			}
-			gotID := make([]interface{}, 0, len(kvs))
+			gotID := make([]any, 0, len(kvs))
 			for _, kv := range kvs {
 				gotID = append(gotID, kv.ID)
 			}
@@ -302,14 +302,14 @@ func Test_getFKSlice(t *testing.T) {
 func Test_validateFks(t *testing.T) {
 	tests := []struct {
 		name    string
-		fks     []interface{}
+		fks     []any
 		wantErr string
 	}{
 		{name: "nil", fks: nil},
-		{name: "valid fks", fks: []interface{}{fkGroups, []fkOther{}}},
+		{name: "valid fks", fks: []any{fkGroups, []fkOther{}}},
 		{
 			name:    "reports index of first invalid element",
-			fks:     []interface{}{fkGroups, []fkOther{}, []int{}, nil},
+			fks:     []any{fkGroups, []fkOther{}, []int{}, nil},
 			wantErr: "fks with index 2 must be slice of structs, got slice of int",
 		},
 	}

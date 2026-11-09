@@ -100,9 +100,9 @@ func TestPostFormToStruct(t *testing.T) {
 
 	tests := []struct {
 		name string
-		item interface{}
+		item any
 		r    func(t *testing.T) *http.Request
-		want interface{}
+		want any
 	}{
 		{
 			name: "default values are not affecting real values",
@@ -254,7 +254,7 @@ func TestPostFormToStruct(t *testing.T) {
 			want: &file{Avatar: []byte{}},
 		},
 
-		// pinned behaviour
+		// pinned behavior
 		{
 			name: "unsupported types are ignored even if present",
 			item: &ignored{Raw: []byte("old"), List: []string{"old"}, P: &str},
@@ -310,7 +310,7 @@ func TestPostFormToStruct(t *testing.T) {
 
 	errTests := []struct {
 		name    string
-		item    interface{}
+		item    any
 		r       *http.Request
 		wantErr string
 	}{

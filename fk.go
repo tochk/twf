@@ -2,14 +2,16 @@ package twf
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/tochk/twf/datastruct"
 )
 
 // validateFk checks that fk is a slice of structs whose fields are all exported and have a twf tag
-func validateFk(idx int, fk interface{}) error {
+func validateFk(idx int, fk any) error {
 	t := reflect.TypeOf(fk)
 	if t == nil {
 		return fmt.Errorf("twf.validateFk: fks with index %d must be slice, got nil", idx)
@@ -21,8 +23,7 @@ func validateFk(idx int, fk interface{}) error {
 	if e.Kind() != reflect.Struct {
 		return fmt.Errorf("twf.validateFk: fks with index %d must be slice of structs, got slice of %s", idx, e.Kind().String())
 	}
-	for i := 0; i < e.NumField(); i++ {
-		f := e.Field(i)
+	for f := range e.Fields() {
 		if !f.IsExported() {
 			return fmt.Errorf("twf.validateFk: fks with index %d: field %s must be exported", idx, f.Name)
 		}
@@ -34,7 +35,7 @@ func validateFk(idx int, fk interface{}) error {
 }
 
 // validateFks checks every element of fks with validateFk
-func validateFks(fks []interface{}) error {
+func validateFks(fks []any) error {
 	for i, fk := range fks {
 		if err := validateFk(i, fk); err != nil {
 			return err
@@ -44,7 +45,7 @@ func validateFks(fks []interface{}) error {
 }
 
 // fkSliceValue returns validated fks slice selected by fksInfo
-func fkSliceValue(fksInfo *datastruct.FkInfo, fks []interface{}) (reflect.Value, error) {
+func fkSliceValue(fksInfo *datastruct.FkInfo, fks []any) (reflect.Value, error) {
 	if fksInfo.FksIndex < 0 || len(fks) <= fksInfo.FksIndex {
 		return reflect.Value{}, fmt.Errorf("fks index %d not provided", fksInfo.FksIndex)
 	}
@@ -59,7 +60,7 @@ func fkSliceValue(fksInfo *datastruct.FkInfo, fks []interface{}) (reflect.Value,
 func getFKKV(v reflect.Value, fksInfo *datastruct.FkInfo) datastruct.FkKV {
 	fkKv := datastruct.FkKV{}
 	for l := 0; l < v.NumField(); l++ {
-		for _, e := range strings.Split(v.Type().Field(l).Tag.Get("twf"), ",") {
+		for e := range strings.SplitSeq(v.Type().Field(l).Tag.Get("twf"), ",") {
 			if !strings.HasPrefix(e, "name:") {
 				continue
 			}
@@ -75,9 +76,7 @@ func getFKKV(v reflect.Value, fksInfo *datastruct.FkInfo) datastruct.FkKV {
 }
 
 // getFKValue returns fk value and original value
-func getFKValue(fksInfo *datastruct.FkInfo, originalValue interface{},
-	fks []interface{}) (fkValue interface{}, value interface{}, err error) {
-
+func getFKValue(fksInfo *datastruct.FkInfo, originalValue any, fks []any) (fkValue, value any, err error) {
 	if fksInfo == nil {
 		return nil, originalValue, nil
 	}
@@ -98,7 +97,7 @@ func getFKValue(fksInfo *datastruct.FkInfo, originalValue interface{},
 }
 
 // getFKSlice return all fks of given fks info
-func getFKSlice(fksInfo *datastruct.FkInfo, fks ...interface{}) ([]datastruct.FkKV, error) {
+func getFKSlice(fksInfo *datastruct.FkInfo, fks ...any) ([]datastruct.FkKV, error) {
 	if fksInfo == nil {
 		return nil, nil
 	}

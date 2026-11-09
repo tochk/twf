@@ -2,15 +2,17 @@ package twf
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"strconv"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/tochk/twf/datastruct"
 )
 
 // getSliceElementPtrType returns pointer to slice element
-func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
+func getSliceElementPtrType(slice any) (reflect.Type, error) {
 	s := reflect.TypeOf(slice)
 	if s == nil {
 		return nil, errors.New("twf.getSliceElementPtrType: expected slice, got nil")
@@ -22,13 +24,13 @@ func getSliceElementPtrType(slice interface{}) (reflect.Type, error) {
 	if s.Kind() != reflect.Struct {
 		return nil, fmt.Errorf("twf.getSliceElementPtrType: slice contains %s, expected struct", s.Kind().String())
 	}
-	s = reflect.PtrTo(s)
+	s = reflect.PointerTo(s)
 	return s, nil
 }
 
 // getFieldDescription returns information of all fields in given struct
 func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
-	if s.Kind() != reflect.Ptr {
+	if s.Kind() != reflect.Pointer {
 		return nil, fmt.Errorf("twf.getFieldDescription: expected ptr to struct, got %s", s.Kind().String())
 	}
 
@@ -41,7 +43,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 	fields := make([]datastruct.Field, 0, s.NumField())
 	for i := 0; i < s.NumField(); i++ {
 		field := datastruct.Field{
-			Type: "text",
+			Type: typeText,
 		}
 		f := s.Field(i)
 		if !f.IsExported() {
@@ -52,13 +54,13 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			field.Type = "number"
 		case reflect.Bool:
-			field.Type = "checkbox"
+			field.Type = typeCheckbox
 		}
 		if t, ok := f.Tag.Lookup("twf"); !ok || t == "" {
 			return nil, errors.New("twf tag must be present and not be empty")
 		}
-		tagContent := strings.Split(f.Tag.Get("twf"), ",")
-		for _, e := range tagContent {
+		tagContent := strings.SplitSeq(f.Tag.Get("twf"), ",")
+		for e := range tagContent {
 			switch {
 			case strings.HasPrefix(e, "fk:"):
 				fkInfo := strings.Split(e[3:], ";")
@@ -73,7 +75,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 					return nil, fmt.Errorf("twf.getFieldDescription: fk index must not be negative, got %d", fkID)
 				}
 				fkType := f.Type
-				if fkType.Kind() == reflect.Ptr {
+				if fkType.Kind() == reflect.Pointer {
 					fkType = fkType.Elem()
 				}
 				if !fkType.Comparable() {
@@ -84,7 +86,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 					ID:       fkInfo[1],
 					Name:     fkInfo[2],
 				}
-				field.Type = "select"
+				field.Type = typeSelect
 			case strings.HasPrefix(e, "name:"):
 				field.Name = e[5:]
 			case strings.HasPrefix(e, "type:"):
@@ -117,12 +119,12 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 }
 
 // structPtrValue checks that item is a non-nil pointer to struct and returns the struct value
-func structPtrValue(fn string, item interface{}) (reflect.Value, error) {
+func structPtrValue(fn string, item any) (reflect.Value, error) {
 	t := reflect.TypeOf(item)
 	if t == nil {
 		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got nil", fn)
 	}
-	if t.Kind() != reflect.Ptr {
+	if t.Kind() != reflect.Pointer {
 		return reflect.Value{}, fmt.Errorf("%s: expected ptr to struct, got %s", fn, t.Kind().String())
 	}
 	if t.Elem().Kind() != reflect.Struct {
@@ -136,13 +138,12 @@ func structPtrValue(fn string, item interface{}) (reflect.Value, error) {
 }
 
 // getFieldValue returns value of the field. Returns <nil> if value is nil
-func getFieldValue(field reflect.Value) interface{} {
-	if field.Kind() == reflect.Ptr {
+func getFieldValue(field reflect.Value) any {
+	if field.Kind() == reflect.Pointer {
 		if field.IsNil() {
 			return "<nil>"
-		} else {
-			return field.Elem().Interface()
 		}
+		return field.Elem().Interface()
 	}
 
 	return field.Interface()

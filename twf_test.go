@@ -19,8 +19,8 @@ func TestNew(t *testing.T) {
 
 	tests := []struct {
 		name string
-		got  interface{}
-		want interface{}
+		got  any
+		want any
 	}{
 		{"HeadFunc", tw.HeadFunc, twftemplates.Head},
 		{"MenuFunc", tw.MenuFunc, twftemplates.Menu},

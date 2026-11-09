@@ -1,10 +1,13 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	log "github.com/sirupsen/logrus"
-	"github.com/tochk/twf"
 	"net/http"
+
+	log "github.com/sirupsen/logrus"
+
+	"github.com/tochk/twf"
 )
 
 // loginData structure for log in data - login and password
@@ -17,6 +20,8 @@ type loginData struct {
 
 // indexPage handler for / page
 func (a *app) indexPage(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxFormSize)
+
 	var logData loginData
 
 	switch r.Method {
@@ -32,7 +37,10 @@ func (a *app) indexPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, data)
 	case http.MethodPost:
 		// don't forget to parse form before calling twf.PostFormToStruct function
-		r.ParseMultipartForm(32 << 20)
+		if err := r.ParseMultipartForm(maxFormSize); err != nil && !errors.Is(err, http.ErrNotMultipart) { //nolint:gosec // G120 false positive: body capped by http.MaxBytesReader
+			fmt.Fprint(w, "Err: ", err)
+			return
+		}
 
 		// parse form
 		err := twf.PostFormToStruct(&logData, r)

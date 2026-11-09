@@ -1,3 +1,5 @@
+// Package twftemplates contains the default quicktemplate-based render
+// functions used by twf.New.
 package twftemplates
 
-//go:generate go run github.com/valyala/quicktemplate/qtc@latest
+//go:generate go tool qtc

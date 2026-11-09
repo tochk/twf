@@ -50,10 +50,10 @@ func TestTWF_AddForm(t *testing.T) {
 
 	tests := []struct {
 		name         string
-		item         interface{}
-		fks          []interface{}
+		item         any
+		fks          []any
 		want         string
-		wantSelected []interface{}
+		wantSelected []any
 	}{
 		{
 			name: "dispatch by type",
@@ -63,13 +63,13 @@ func TestTWF_AddForm(t *testing.T) {
 		{
 			name:         "select never has selected value",
 			item:         &selects{G: 2, S: "x"},
-			fks:          []interface{}{fkGroups},
+			fks:          []any{fkGroups},
 			want:         "H(Add)MFORM(/add){S(g=2;[1:admins,2:users];<nil>)S(s=x;nil;<nil>)}F",
-			wantSelected: []interface{}{nil, nil},
+			wantSelected: []any{nil, nil},
 		},
 		{
 			name: "value tag is a default, nil pointer is empty",
-			item: &values{Def: "real value", Real: "r", PV: intPtr(5)},
+			item: &values{Def: "real value", Real: "r", PV: new(5)},
 			want: "H(Add)MFORM(/add){T(def=default)T(real=r)T(p=)T(pv=5)C(b=true)C(f=false)}F",
 		},
 		{
@@ -85,7 +85,7 @@ func TestTWF_AddForm(t *testing.T) {
 		{
 			name: "process parameters use empty nil pointer and raw fk id",
 			item: &ppRefs{G: 1},
-			fks:  []interface{}{fkGroups},
+			fks:  []any{fkGroups},
 			want: "H(Add)MFORM(/add){S(g=1;[1:admins,2:users];<nil>)T(ref=|1)}F",
 		},
 		{

@@ -2,11 +2,13 @@ package twf
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
-	"github.com/tochk/twf/datastruct"
 	"reflect"
 	"sort"
 	"strings"
+
+	"github.com/pkg/errors"
+
+	"github.com/tochk/twf/datastruct"
 )
 
 // processParameters replaces {field} in value. Replacement is done in a single pass,
@@ -43,7 +45,7 @@ func filterTableFields(fields []datastruct.Field) []datastruct.Field {
 }
 
 // Table return table with contents of given slice
-func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string, error) {
+func (t *TWF) Table(title string, slice any, fks ...any) (string, error) {
 	item, err := getSliceElementPtrType(slice)
 	if err != nil {
 		return "", errors.Wrap(err, "twf.Table")
@@ -79,11 +81,11 @@ func (t *TWF) Table(title string, slice interface{}, fks ...interface{}) (string
 	return res.String(), nil
 }
 
-func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, fks []interface{}) ([]interface{}, error) {
-	itemsSlice := make([]interface{}, 0, s.Index(i).NumField())
+func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, fks []any) ([]any, error) {
+	itemsSlice := make([]any, 0, s.Index(i).NumField())
 	data := map[string]string{}
 	for j := 0; j < s.Index(i).NumField(); j++ {
-		var value interface{}
+		var value any
 
 		if fields[j].ProcessParameters {
 			value = processParameters(fields[j].Value, data)
@@ -92,7 +94,7 @@ func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, 
 			value = getFieldValue(tmp)
 		}
 
-		var fkValue interface{}
+		var fkValue any
 		fkValue, value, err := getFKValue(fields[j].FkInfo, value, fks)
 		if err != nil {
 			return nil, err

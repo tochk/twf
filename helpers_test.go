@@ -12,10 +12,10 @@ import (
 // recorder captures everything the page builders pass to TWF render functions
 type recorder struct {
 	listFields []datastruct.Field
-	items      [][]interface{}
+	items      [][]any
 	formFields []datastruct.Field
 	selectKVs  [][]datastruct.FkKV
-	selected   []interface{}
+	selected   []any
 }
 
 // newRecorder returns TWF with deterministic marker render functions, so tests can assert
@@ -40,7 +40,7 @@ func newRecorder() (*TWF, *recorder) {
 			}
 			return "L[" + strings.Join(names, ",") + "]{" + content + "}"
 		},
-		ListItemFunc: func(values []interface{}) string {
+		ListItemFunc: func(values []any) string {
 			rec.items = append(rec.items, values)
 			parts := make([]string, 0, len(values))
 			for _, v := range values {
@@ -52,7 +52,7 @@ func newRecorder() (*TWF, *recorder) {
 		FormItemText:     formItem("T"),
 		FormItemTextarea: formItem("A"),
 		FormItemCheckbox: formItem("C"),
-		FormItemSelect: func(f datastruct.Field, kvs []datastruct.FkKV, selected interface{}) string {
+		FormItemSelect: func(f datastruct.Field, kvs []datastruct.FkKV, selected any) string {
 			rec.formFields = append(rec.formFields, f)
 			rec.selectKVs = append(rec.selectKVs, kvs)
 			rec.selected = append(rec.selected, selected)
@@ -75,18 +75,18 @@ func kvString(kvs []datastruct.FkKV) string {
 }
 
 // unwrapValues replaces reflect.Value elements (fk names) with their underlying values
-func unwrapValues(values []interface{}) []interface{} {
+func unwrapValues(values []any) []any {
 	if values == nil {
 		return nil
 	}
-	res := make([]interface{}, 0, len(values))
+	res := make([]any, 0, len(values))
 	for _, v := range values {
 		res = append(res, unwrapValue(v))
 	}
 	return res
 }
 
-func unwrapValue(v interface{}) interface{} {
+func unwrapValue(v any) any {
 	if rv, ok := v.(reflect.Value); ok {
 		return rv.Interface()
 	}
@@ -111,8 +111,6 @@ func checkErr(t *testing.T, err error, wantErr string) bool {
 	}
 	return true
 }
-
-func intPtr(i int) *int { return &i }
 
 // fk test fixtures shared between test files
 type fkGroup struct {
@@ -141,8 +139,8 @@ var fkGroups = []fkGroup{{1, "admins"}, {2, "users"}}
 // formErrorCase describes invalid input shared by AddForm and EditForm tests
 type formErrorCase struct {
 	name    string
-	item    interface{}
-	fks     []interface{}
+	item    any
+	fks     []any
 	wantErr string
 }
 
@@ -180,25 +178,25 @@ func formErrorCases(fn string) []formErrorCase {
 			// pinned: fk misconfiguration is reported even for fields not rendered in the form
 			name:    "fk index not provided for hidden field",
 			item:    &hiddenFk{},
-			fks:     []interface{}{fkGroups},
+			fks:     []any{fkGroups},
 			wantErr: fn + ": twf.getFKSlice: fks index 1 not provided",
 		},
 		{
 			name:    "nil fks element",
 			item:    &item{},
-			fks:     []interface{}{nil},
+			fks:     []any{nil},
 			wantErr: fn + ": twf.validateFk: fks with index 0 must be slice, got nil",
 		},
 		{
 			name:    "unused invalid fks element",
 			item:    &item{},
-			fks:     []interface{}{fkGroups, 5},
+			fks:     []any{fkGroups, 5},
 			wantErr: fn + ": twf.validateFk: fks with index 1 must be slice, not int",
 		},
 		{
 			name:    "fks slice of int",
 			item:    &withFk{},
-			fks:     []interface{}{[]int{1}},
+			fks:     []any{[]int{1}},
 			wantErr: "fks with index 0 must be slice of structs, got slice of int",
 		},
 	}

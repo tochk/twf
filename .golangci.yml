@@ -1,0 +1,103 @@
+version: "2"
+
+# Go version is taken from go.mod.
+
+linters:
+  default: standard # errcheck, govet, ineffassign, staticcheck, unused
+  enable:
+    - bodyclose
+    - copyloopvar
+    - dupword
+    - errname
+    - errorlint
+    - gocritic
+    - goconst
+    - gosec
+    - misspell
+    - modernize
+    - nilerr
+    - nolintlint
+    - prealloc
+    - predeclared
+    - revive
+    - unconvert
+    - unparam
+    - usestdlibvars
+    - wastedassign
+    - whitespace
+
+  settings:
+    errcheck:
+      exclude-functions:
+        # Writes to http.ResponseWriter; nothing useful can be done on failure.
+        - fmt.Fprint
+        - fmt.Fprintf
+        - fmt.Fprintln
+
+    goconst:
+      min-len: 3
+      min-occurrences: 3
+
+    gocritic:
+      enabled-tags:
+        - diagnostic
+        - style
+        - performance
+
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment # struct layout churn for no real gain here
+        - shadow # too noisy with idiomatic `err` shadowing
+
+    misspell:
+      locale: US
+
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+    revive:
+      rules:
+        - name: error-strings
+        - name: errorf
+        - name: exported
+        - name: if-return
+        - name: indent-error-flow
+        - name: package-comments
+        - name: receiver-naming
+        - name: superfluous-else
+        - name: unused-parameter
+        - name: use-any
+        - name: var-naming
+
+  exclusions:
+    generated: lax # skips *.qtpl.go produced by qtc
+    presets:
+      - common-false-positives
+      - std-error-handling
+    rules:
+      - path: _test\.go
+        linters:
+          - dupword
+          - errcheck
+          - goconst
+          - gosec
+
+formatters:
+  enable:
+    - gofmt
+    - goimports
+  settings:
+    gofmt:
+      simplify: true
+      rewrite-rules:
+        - pattern: "interface{}"
+          replacement: "any"
+    goimports:
+      local-prefixes:
+        - github.com/tochk/twf
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0

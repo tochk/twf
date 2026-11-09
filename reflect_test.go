@@ -10,12 +10,12 @@ import (
 func Test_getFieldValue(t *testing.T) {
 	x := 5
 	p := &x
-	var nilIface interface{}
+	var nilIface any
 
 	tests := []struct {
 		name  string
 		field reflect.Value
-		want  interface{}
+		want  any
 	}{
 		{
 			name: "simple_int",
@@ -70,14 +70,14 @@ func Test_getFieldValue(t *testing.T) {
 		{
 			name: "nil interface field returns nil",
 			field: reflect.ValueOf(&struct {
-				Test interface{}
+				Test any
 			}{nilIface}).Elem().Field(0),
 			want: nil,
 		},
 		{
 			name: "interface field returns held value",
 			field: reflect.ValueOf(&struct {
-				Test interface{}
+				Test any
 			}{3}).Elem().Field(0),
 			want: 3,
 		},
@@ -99,7 +99,7 @@ func Test_getSliceElementPtrType(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		item    interface{}
+		item    any
 		want    reflect.Type
 		wantErr string
 	}{
@@ -151,12 +151,12 @@ func Test_getSliceElementPtrType(t *testing.T) {
 		{
 			name: "slice of named struct",
 			item: []item{{"a"}},
-			want: reflect.TypeOf(&item{}),
+			want: reflect.TypeFor[*item](),
 		},
 		{
 			name: "nil slice of struct",
 			item: []item(nil),
-			want: reflect.TypeOf(&item{}),
+			want: reflect.TypeFor[*item](),
 		},
 	}
 	for _, tt := range tests {
@@ -190,7 +190,7 @@ func Test_getFieldDescription(t *testing.T) {
 		},
 		{
 			name:    "simpe_not_ptr_to_struct",
-			s:       reflect.TypeOf(new(string)),
+			s:       reflect.TypeFor[*string](),
 			wantErr: "expected ptr to struct, got ptr to string",
 		},
 		{
@@ -361,26 +361,26 @@ func Test_getFieldDescription(t *testing.T) {
 		{
 			name: "type inference",
 			s: reflect.TypeOf(&struct {
-				I   int         `twf:"name:i"`
-				I8  int8        `twf:"name:i8"`
-				I16 int16       `twf:"name:i16"`
-				I32 int32       `twf:"name:i32"`
-				I64 int64       `twf:"name:i64"`
-				U   uint        `twf:"name:u"`
-				U8  uint8       `twf:"name:u8"`
-				U16 uint16      `twf:"name:u16"`
-				U32 uint32      `twf:"name:u32"`
-				U64 uint64      `twf:"name:u64"`
-				F32 float32     `twf:"name:f32"`
-				F64 float64     `twf:"name:f64"`
-				B   bool        `twf:"name:b"`
-				S   string      `twf:"name:s"`
-				P   *int        `twf:"name:p"` // pinned: pointers are not inferred as numbers
-				Bs  []byte      `twf:"name:bs"`
-				N   struct{}    `twf:"name:n"`
-				Up  uintptr     `twf:"name:up"`
-				C   complex128  `twf:"name:c"`
-				Ifc interface{} `twf:"name:ifc"`
+				I   int        `twf:"name:i"`
+				I8  int8       `twf:"name:i8"`
+				I16 int16      `twf:"name:i16"`
+				I32 int32      `twf:"name:i32"`
+				I64 int64      `twf:"name:i64"`
+				U   uint       `twf:"name:u"`
+				U8  uint8      `twf:"name:u8"`
+				U16 uint16     `twf:"name:u16"`
+				U32 uint32     `twf:"name:u32"`
+				U64 uint64     `twf:"name:u64"`
+				F32 float32    `twf:"name:f32"`
+				F64 float64    `twf:"name:f64"`
+				B   bool       `twf:"name:b"`
+				S   string     `twf:"name:s"`
+				P   *int       `twf:"name:p"` // pinned: pointers are not inferred as numbers
+				Bs  []byte     `twf:"name:bs"`
+				N   struct{}   `twf:"name:n"`
+				Up  uintptr    `twf:"name:up"`
+				C   complex128 `twf:"name:c"`
+				Ifc any        `twf:"name:ifc"`
 			}{}),
 			want: []datastruct.Field{
 				{Name: "i", Type: "number"},
@@ -529,7 +529,7 @@ func Test_structPtrValue(t *testing.T) {
 
 	tests := []struct {
 		name    string
-		item    interface{}
+		item    any
 		wantErr string
 	}{
 		{name: "nil", item: nil, wantErr: "fn: expected ptr to struct, got nil"},

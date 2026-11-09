@@ -2,14 +2,15 @@ package twf
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // EditForm returns page with edit form filled with values from item. `value` tag is used only for fields with
 // process_parameters, real values are never overridden
-func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...interface{}) (string, error) {
+func (t *TWF) EditForm(pageTitle string, item any, link string, fks ...any) (string, error) {
 	s, err := structPtrValue("twf.EditForm", item)
 	if err != nil {
 		return "", err
@@ -30,7 +31,7 @@ func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...i
 
 	data := map[string]string{}
 	for i := 0; i < s.NumField(); i++ {
-		var value interface{}
+		var value any
 		field := fields[i]
 
 		if field.ProcessParameters && field.Value != "" {
@@ -52,11 +53,11 @@ func (t *TWF) EditForm(pageTitle string, item interface{}, link string, fks ...i
 		}
 
 		switch field.Type {
-		case "select":
+		case typeSelect:
 			content.WriteString(t.FormItemSelect(field, kvs, value))
-		case "checkbox":
+		case typeCheckbox:
 			content.WriteString(t.FormItemCheckbox(field))
-		case "textarea":
+		case typeTextarea:
 			content.WriteString(t.FormItemTextarea(field))
 		default:
 			content.WriteString(t.FormItemText(field))

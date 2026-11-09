@@ -1,3 +1,4 @@
+// Package example_templates contains custom templates used by the example app.
 package example_templates
 
-//go:generate go run github.com/valyala/quicktemplate/qtc@latest
+//go:generate go tool qtc

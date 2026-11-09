@@ -2,13 +2,14 @@ package twf
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"reflect"
 	"strings"
+
+	"github.com/pkg/errors"
 )
 
 // AddForm returns page with add form. Values from `value` tag are used as defaults, otherwise values from item are used
-func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interface{}) (string, error) {
+func (t *TWF) AddForm(title string, item any, link string, fks ...any) (string, error) {
 	s, err := structPtrValue("twf.AddForm", item)
 	if err != nil {
 		return "", err
@@ -29,12 +30,12 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 
 	data := map[string]string{}
 	for i := 0; i < s.NumField(); i++ {
-		var value interface{}
+		var value any
 		field := fields[i]
 		switch {
 		case field.Value == "":
 			tmp := s.Field(i)
-			if tmp.Kind() == reflect.Ptr {
+			if tmp.Kind() == reflect.Pointer {
 				if tmp.IsNil() {
 					value = ""
 				} else {
@@ -62,11 +63,11 @@ func (t *TWF) AddForm(title string, item interface{}, link string, fks ...interf
 		}
 
 		switch field.Type {
-		case "select":
+		case typeSelect:
 			content.WriteString(t.FormItemSelect(field, kvs, nil))
-		case "checkbox":
+		case typeCheckbox:
 			content.WriteString(t.FormItemCheckbox(field))
-		case "textarea":
+		case typeTextarea:
 			content.WriteString(t.FormItemTextarea(field))
 		default:
 			content.WriteString(t.FormItemText(field))

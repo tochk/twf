@@ -1,11 +1,14 @@
 package main
 
 import (
+	"errors"
 	"fmt"
-	"github.com/gorilla/mux"
-	"github.com/tochk/twf"
 	"net/http"
 	"strconv"
+
+	"github.com/gorilla/mux"
+
+	"github.com/tochk/twf"
 )
 
 // user structure for user info
@@ -43,7 +46,7 @@ var users = []user{
 }
 
 // usersListPage handler for /users/ page
-func (a *app) usersListPage(w http.ResponseWriter, r *http.Request) {
+func (a *app) usersListPage(w http.ResponseWriter, _ *http.Request) {
 	// print table with values in `users` slice
 	// first parameter - page title
 	// second parameter - users slice
@@ -60,6 +63,8 @@ func (a *app) usersListPage(w http.ResponseWriter, r *http.Request) {
 
 // usersEditPage handler for /users/edit/{id} page
 func (a *app) usersEditPage(w http.ResponseWriter, r *http.Request) {
+	r.Body = http.MaxBytesReader(w, r.Body, maxFormSize)
+
 	// parse id from request
 	id, err := strconv.Atoi(mux.Vars(r)["id"])
 	if err != nil {
@@ -80,7 +85,10 @@ func (a *app) usersEditPage(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprint(w, data)
 	case http.MethodPost:
 		// don't forget to parse form before calling twf.PostFormToStruct function
-		r.ParseMultipartForm(32 << 20)
+		if err := r.ParseMultipartForm(maxFormSize); err != nil && !errors.Is(err, http.ErrNotMultipart) { //nolint:gosec // G120 false positive: body capped by http.MaxBytesReader
+			fmt.Fprint(w, "Err: ", err)
+			return
+		}
 
 		var user user
 

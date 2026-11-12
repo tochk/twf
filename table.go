@@ -6,8 +6,6 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/tochk/twf/datastruct"
 )
 
@@ -48,16 +46,16 @@ func filterTableFields(fields []datastruct.Field) []datastruct.Field {
 func (t *TWF) Table(title string, slice any, fks ...any) (string, error) {
 	item, err := getSliceElementPtrType(slice)
 	if err != nil {
-		return "", errors.Wrap(err, "twf.Table")
+		return "", fmt.Errorf("twf.Table: %w", err)
 	}
 
 	if err := validateFks(fks); err != nil {
-		return "", errors.Wrap(err, "twf.Table")
+		return "", fmt.Errorf("twf.Table: %w", err)
 	}
 
 	fields, err := getFieldDescription(item)
 	if err != nil {
-		return "", errors.Wrap(err, "twf.Table")
+		return "", fmt.Errorf("twf.Table: %w", err)
 	}
 
 	res := strings.Builder{}
@@ -69,7 +67,7 @@ func (t *TWF) Table(title string, slice any, fks ...any) (string, error) {
 	for i := 0; i < s.Len(); i++ {
 		itemsSlice, err := generateTableItemsSlice(s, fields, i, fks)
 		if err != nil {
-			return "", errors.Wrap(err, "twf.Table")
+			return "", fmt.Errorf("twf.Table: %w", err)
 		}
 		content.WriteString(t.ListItemFunc(itemsSlice))
 	}

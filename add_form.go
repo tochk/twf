@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // AddForm returns page with add form. Values from `value` tag are used as defaults, otherwise values from item are used
@@ -16,12 +14,12 @@ func (t *TWF) AddForm(title string, item any, link string, fks ...any) (string, 
 	}
 
 	if err := validateFks(fks); err != nil {
-		return "", errors.Wrap(err, "twf.AddForm")
+		return "", fmt.Errorf("twf.AddForm: %w", err)
 	}
 
 	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
-		return "", errors.Wrap(err, "twf.AddForm")
+		return "", fmt.Errorf("twf.AddForm: %w", err)
 	}
 	res := strings.Builder{}
 	res.WriteString(t.HeadFunc(title))
@@ -52,7 +50,7 @@ func (t *TWF) AddForm(title string, item any, link string, fks ...any) (string, 
 
 		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
-			return "", errors.Wrap(err, "twf.AddForm")
+			return "", fmt.Errorf("twf.AddForm: %w", err)
 		}
 
 		field.Value = fmt.Sprint(value)

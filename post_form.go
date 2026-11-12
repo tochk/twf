@@ -1,12 +1,12 @@
 package twf
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"reflect"
 	"strconv"
-
-	"github.com/pkg/errors"
 
 	"github.com/tochk/twf/datastruct"
 )
@@ -31,7 +31,7 @@ func PostFormToStruct(item any, r *http.Request) error {
 
 	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
-		return errors.Wrap(err, "twf.PostFormToStruct")
+		return fmt.Errorf("twf.PostFormToStruct: %w", err)
 	}
 	// unparsed form means no data at all, nothing is considered absent
 	formParsed := r.PostForm != nil
@@ -51,19 +51,19 @@ func PostFormToStruct(item any, r *http.Request) error {
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
 			v, err := strconv.ParseInt(formValue, 10, f.Type().Bits())
 			if err != nil {
-				return errors.Wrap(err, "twf.PostFormToStruct")
+				return fmt.Errorf("twf.PostFormToStruct: %w", err)
 			}
 			f.SetInt(v)
 		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			v, err := strconv.ParseUint(formValue, 10, f.Type().Bits())
 			if err != nil {
-				return errors.Wrap(err, "twf.PostFormToStruct")
+				return fmt.Errorf("twf.PostFormToStruct: %w", err)
 			}
 			f.SetUint(v)
 		case reflect.Float64, reflect.Float32:
 			v, err := strconv.ParseFloat(formValue, f.Type().Bits())
 			if err != nil {
-				return errors.Wrap(err, "twf.PostFormToStruct")
+				return fmt.Errorf("twf.PostFormToStruct: %w", err)
 			}
 			f.SetFloat(v)
 		case reflect.Bool:
@@ -75,11 +75,11 @@ func PostFormToStruct(item any, r *http.Request) error {
 					continue
 				}
 				if err != nil {
-					return errors.Wrap(err, "twf.PostFormToStruct")
+					return fmt.Errorf("twf.PostFormToStruct: %w", err)
 				}
 				data, err := io.ReadAll(file)
 				if err != nil {
-					return errors.Wrap(err, "twf.PostFormToStruct")
+					return fmt.Errorf("twf.PostFormToStruct: %w", err)
 				}
 				f.SetBytes(data)
 			}

@@ -3,9 +3,8 @@ package main
 import (
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
-
-	log "github.com/sirupsen/logrus"
 
 	"github.com/tochk/twf"
 )
@@ -50,7 +49,7 @@ func (a *app) indexPage(w http.ResponseWriter, r *http.Request) {
 		}
 
 		// print results
-		log.Printf("entered login data: %+v", logData)
+		slog.Info("entered login data", "data", logData)
 
 		// redirect to users page
 		http.Redirect(w, r, "/users/", http.StatusFound)

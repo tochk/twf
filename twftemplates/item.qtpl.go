@@ -24,111 +24,113 @@ var (
 func StreamItemList(qw422016 *qt422016.Writer, fields []datastruct.Field, content string) {
 //line item.qtpl:3
 	qw422016.N().S(`
+<div class="table-responsive px-3 mt-3">
 <table class="table">
     <thead class="thead-dark">
     <tr>
         `)
-//line item.qtpl:7
+//line item.qtpl:8
 	for _, field := range fields {
-//line item.qtpl:7
+//line item.qtpl:8
 		qw422016.N().S(`
         <th>`)
-//line item.qtpl:8
+//line item.qtpl:9
 		qw422016.E().S(field.Title)
-//line item.qtpl:8
+//line item.qtpl:9
 		qw422016.N().S(`</th>
         `)
-//line item.qtpl:9
+//line item.qtpl:10
 	}
-//line item.qtpl:9
+//line item.qtpl:10
 	qw422016.N().S(`
     </tr>
     </thead>
     <tbody>
         `)
-//line item.qtpl:13
+//line item.qtpl:14
 	qw422016.N().S(content)
-//line item.qtpl:13
+//line item.qtpl:14
 	qw422016.N().S(`
     </tbody>
 </table>
+</div>
 `)
-//line item.qtpl:16
+//line item.qtpl:18
 }
 
-//line item.qtpl:16
+//line item.qtpl:18
 func WriteItemList(qq422016 qtio422016.Writer, fields []datastruct.Field, content string) {
-//line item.qtpl:16
+//line item.qtpl:18
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line item.qtpl:16
+//line item.qtpl:18
 	StreamItemList(qw422016, fields, content)
-//line item.qtpl:16
+//line item.qtpl:18
 	qt422016.ReleaseWriter(qw422016)
-//line item.qtpl:16
+//line item.qtpl:18
 }
 
-//line item.qtpl:16
+//line item.qtpl:18
 func ItemList(fields []datastruct.Field, content string) string {
-//line item.qtpl:16
+//line item.qtpl:18
 	qb422016 := qt422016.AcquireByteBuffer()
-//line item.qtpl:16
+//line item.qtpl:18
 	WriteItemList(qb422016, fields, content)
-//line item.qtpl:16
+//line item.qtpl:18
 	qs422016 := string(qb422016.B)
-//line item.qtpl:16
+//line item.qtpl:18
 	qt422016.ReleaseByteBuffer(qb422016)
-//line item.qtpl:16
+//line item.qtpl:18
 	return qs422016
-//line item.qtpl:16
+//line item.qtpl:18
 }
 
-//line item.qtpl:18
+//line item.qtpl:20
 func StreamItem(qw422016 *qt422016.Writer, values []interface{}) {
-//line item.qtpl:18
+//line item.qtpl:20
 	qw422016.N().S(`
 <tr>
 `)
-//line item.qtpl:20
+//line item.qtpl:22
 	for _, value := range values {
-//line item.qtpl:20
+//line item.qtpl:22
 		qw422016.N().S(`
     <td>`)
-//line item.qtpl:21
+//line item.qtpl:23
 		qw422016.N().V(value)
-//line item.qtpl:21
+//line item.qtpl:23
 		qw422016.N().S(`</td>
 `)
-//line item.qtpl:22
+//line item.qtpl:24
 	}
-//line item.qtpl:22
+//line item.qtpl:24
 	qw422016.N().S(`
 </tr>
 `)
-//line item.qtpl:24
+//line item.qtpl:26
 }
 
-//line item.qtpl:24
+//line item.qtpl:26
 func WriteItem(qq422016 qtio422016.Writer, values []interface{}) {
-//line item.qtpl:24
+//line item.qtpl:26
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line item.qtpl:24
+//line item.qtpl:26
 	StreamItem(qw422016, values)
-//line item.qtpl:24
+//line item.qtpl:26
 	qt422016.ReleaseWriter(qw422016)
-//line item.qtpl:24
+//line item.qtpl:26
 }
 
-//line item.qtpl:24
+//line item.qtpl:26
 func Item(values []interface{}) string {
-//line item.qtpl:24
+//line item.qtpl:26
 	qb422016 := qt422016.AcquireByteBuffer()
-//line item.qtpl:24
+//line item.qtpl:26
 	WriteItem(qb422016, values)
-//line item.qtpl:24
+//line item.qtpl:26
 	qs422016 := string(qb422016.B)
-//line item.qtpl:24
+//line item.qtpl:26
 	qt422016.ReleaseByteBuffer(qb422016)
-//line item.qtpl:24
+//line item.qtpl:26
 	return qs422016
-//line item.qtpl:24
+//line item.qtpl:26
 }

@@ -21,19 +21,22 @@ var (
 func StreamHead(qw422016 *qt422016.Writer, title string) {
 //line head.qtpl:1
 	qw422016.N().S(`
+<!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>`)
-//line head.qtpl:4
+//line head.qtpl:7
 	qw422016.E().S(title)
-//line head.qtpl:4
+//line head.qtpl:7
 	qw422016.N().S(`</title>
     <link rel="stylesheet"
           href="https://unpkg.com/bootstrap-material-design@4.1.1/dist/css/bootstrap-material-design.min.css"
           integrity="sha384-wXznGJNEXNG1NFsbm0ugrLFMQPWswR3lds2VeinahP8N0zJw9VWSopbjv2x7WCvX" crossorigin="anonymous">
     <link rel="stylesheet" href="/web/static/template.css">
     <style>
-        .auth {
+        .form-container {
             width: 400px;
             margin: 50px auto 0;
         }
@@ -48,38 +51,38 @@ func StreamHead(qw422016 *qt422016.Writer, title string) {
             margin: 50px auto 0;
         }
 
-        tr:hover {
+        tbody tr:hover {
             background-color: lightblue !important;
         }
     </style>
 </head>
 <body>
 `)
-//line head.qtpl:31
+//line head.qtpl:34
 }
 
-//line head.qtpl:31
+//line head.qtpl:34
 func WriteHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:31
+//line head.qtpl:34
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:31
+//line head.qtpl:34
 	StreamHead(qw422016, title)
-//line head.qtpl:31
+//line head.qtpl:34
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:31
+//line head.qtpl:34
 }
 
-//line head.qtpl:31
+//line head.qtpl:34
 func Head(title string) string {
-//line head.qtpl:31
+//line head.qtpl:34
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:31
+//line head.qtpl:34
 	WriteHead(qb422016, title)
-//line head.qtpl:31
+//line head.qtpl:34
 	qs422016 := string(qb422016.B)
-//line head.qtpl:31
+//line head.qtpl:34
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:31
+//line head.qtpl:34
 	return qs422016
-//line head.qtpl:31
+//line head.qtpl:34
 }

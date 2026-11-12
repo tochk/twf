@@ -353,3 +353,39 @@ func TestPostFormToStruct(t *testing.T) {
 		})
 	}
 }
+
+func TestPostFormToStructEmptySelect(t *testing.T) {
+	type item struct {
+		FkID int    `twf:"name:fk_id,fk:0;id;name"`
+		Code string `twf:"name:code,type:select"`
+		Num  int    `twf:"name:num"`
+	}
+	tests := []struct {
+		name    string
+		values  url.Values
+		want    item
+		wantErr string
+	}{
+		{name: "empty select resets to zero", values: url.Values{"fk_id": {""}, "code": {""}}, want: item{Num: 7}},
+		{name: "selected value is parsed", values: url.Values{"fk_id": {"3"}, "code": {"x"}}, want: item{FkID: 3, Code: "x", Num: 7}},
+		{name: "empty non-select number still fails", values: url.Values{"num": {""}}, wantErr: `parsing "": invalid syntax`},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := item{FkID: 5, Code: "old", Num: 7}
+			err := PostFormToStruct(&got, formRequest(tt.values))
+			if tt.wantErr != "" {
+				if err == nil || !strings.Contains(err.Error(), tt.wantErr) {
+					t.Fatalf("PostFormToStruct() error = %v, want %q", err, tt.wantErr)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("PostFormToStruct() error = %v", err)
+			}
+			if !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("PostFormToStruct() = %+v, want %+v", got, tt.want)
+			}
+		})
+	}
+}

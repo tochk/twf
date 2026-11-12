@@ -45,6 +45,11 @@ func PostFormToStruct(item any, r *http.Request) error {
 		if !ok && fields[i].Type != typeFile && (!formParsed || !absentMeansFalse(&fields[i], f.Kind())) {
 			continue
 		}
+		// the empty option of a select means "nothing selected"
+		if fields[i].Type == typeSelect && formValue == "" {
+			f.SetZero()
+			continue
+		}
 		switch f.Kind() {
 		case reflect.String:
 			f.SetString(formValue)

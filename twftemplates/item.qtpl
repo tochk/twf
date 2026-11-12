@@ -1,6 +1,7 @@
 {% import "github.com/tochk/twf/datastruct" %}
 
 {% func ItemList(fields []datastruct.Field, content string) %}
+<div class="table-responsive px-3 mt-3">
 <table class="table">
     <thead class="thead-dark">
     <tr>
@@ -13,6 +14,7 @@
         {%s= content %}
     </tbody>
 </table>
+</div>
 {% endfunc %}
 
 {% func Item(values []interface{}) %}

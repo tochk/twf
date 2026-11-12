@@ -1,5 +1,9 @@
 # TWF
 
+[![CI](https://github.com/tochk/twf/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/tochk/twf/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/tochk/twf/branch/master/graph/badge.svg)](https://codecov.io/gh/tochk/twf)
+[![Go version](https://img.shields.io/github/go-mod/go-version/tochk/twf)](go.mod)
+
 Simple golang library for easily creating admin portals (or another web interfaces with many forms :)  )
 
 ## Usage

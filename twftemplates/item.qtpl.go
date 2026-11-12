@@ -25,7 +25,7 @@ func StreamItemList(qw422016 *qt422016.Writer, fields []datastruct.Field, conten
 //line item.qtpl:3
 	qw422016.N().S(`
 <div class="table-responsive px-3 mt-3">
-<table class="table">
+<table class="table border">
     <thead class="thead-dark">
     <tr>
         `)

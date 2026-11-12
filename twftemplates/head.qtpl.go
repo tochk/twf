@@ -51,6 +51,11 @@ func StreamHead(qw422016 *qt422016.Writer, title string) {
             margin: 50px auto 0;
         }
 
+        /* BMD sets navbar z-index to 1, same as checkbox decorators, so dropdowns render under them */
+        .navbar {
+            z-index: 1030;
+        }
+
         tbody tr:hover {
             background-color: lightblue !important;
         }
@@ -58,31 +63,31 @@ func StreamHead(qw422016 *qt422016.Writer, title string) {
 </head>
 <body>
 `)
-//line head.qtpl:34
+//line head.qtpl:39
 }
 
-//line head.qtpl:34
+//line head.qtpl:39
 func WriteHead(qq422016 qtio422016.Writer, title string) {
-//line head.qtpl:34
+//line head.qtpl:39
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line head.qtpl:34
+//line head.qtpl:39
 	StreamHead(qw422016, title)
-//line head.qtpl:34
+//line head.qtpl:39
 	qt422016.ReleaseWriter(qw422016)
-//line head.qtpl:34
+//line head.qtpl:39
 }
 
-//line head.qtpl:34
+//line head.qtpl:39
 func Head(title string) string {
-//line head.qtpl:34
+//line head.qtpl:39
 	qb422016 := qt422016.AcquireByteBuffer()
-//line head.qtpl:34
+//line head.qtpl:39
 	WriteHead(qb422016, title)
-//line head.qtpl:34
+//line head.qtpl:39
 	qs422016 := string(qb422016.B)
-//line head.qtpl:34
+//line head.qtpl:39
 	qt422016.ReleaseByteBuffer(qb422016)
-//line head.qtpl:34
+//line head.qtpl:39
 	return qs422016
-//line head.qtpl:34
+//line head.qtpl:39
 }

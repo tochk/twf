@@ -3,9 +3,11 @@ package datastruct
 
 // Field describes one struct field parsed from its twf tag.
 type Field struct {
-	Name              string
-	Title             string
-	Type              string
+	Name  string
+	Title string
+	Type  string
+	// Step is the step attribute of number inputs, "any" for floats so decimals are accepted
+	Step              string
 	Placeholder       string
 	Required          bool
 	NoCreate          bool

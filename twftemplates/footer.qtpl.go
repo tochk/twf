@@ -30,34 +30,39 @@ func StreamFooter(qw422016 *qt422016.Writer) {
 <script src="https://unpkg.com/bootstrap-material-design@4.1.1/dist/js/bootstrap-material-design.js"
         integrity="sha384-CauSuKpEqAFajSpkdjv3z9t8E7RlpJ1UP0lKM/+NdtSarroVKu069AlsRPKkFBz9"
         crossorigin="anonymous"></script>
+<script>
+    $(document).ready(function () {
+        $('body').bootstrapMaterialDesign();
+    });
+</script>
 </body>
 </html>
 `)
-//line footer.qtpl:13
+//line footer.qtpl:18
 }
 
-//line footer.qtpl:13
+//line footer.qtpl:18
 func WriteFooter(qq422016 qtio422016.Writer) {
-//line footer.qtpl:13
+//line footer.qtpl:18
 	qw422016 := qt422016.AcquireWriter(qq422016)
-//line footer.qtpl:13
+//line footer.qtpl:18
 	StreamFooter(qw422016)
-//line footer.qtpl:13
+//line footer.qtpl:18
 	qt422016.ReleaseWriter(qw422016)
-//line footer.qtpl:13
+//line footer.qtpl:18
 }
 
-//line footer.qtpl:13
+//line footer.qtpl:18
 func Footer() string {
-//line footer.qtpl:13
+//line footer.qtpl:18
 	qb422016 := qt422016.AcquireByteBuffer()
-//line footer.qtpl:13
+//line footer.qtpl:18
 	WriteFooter(qb422016)
-//line footer.qtpl:13
+//line footer.qtpl:18
 	qs422016 := string(qb422016.B)
-//line footer.qtpl:13
+//line footer.qtpl:18
 	qt422016.ReleaseByteBuffer(qb422016)
-//line footer.qtpl:13
+//line footer.qtpl:18
 	return qs422016
-//line footer.qtpl:13
+//line footer.qtpl:18
 }

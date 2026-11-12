@@ -49,9 +49,12 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 			return nil, fmt.Errorf("twf.getFieldDescription: field %s must be exported", f.Name)
 		}
 		switch f.Type.Kind() {
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64, reflect.Float32, reflect.Float64,
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
 			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 			field.Type = "number"
+		case reflect.Float32, reflect.Float64:
+			field.Type = "number"
+			field.Step = "any"
 		case reflect.Bool:
 			field.Type = typeCheckbox
 		}

@@ -2,7 +2,7 @@
 
 {% func ItemList(fields []datastruct.Field, content string) %}
 <div class="table-responsive px-3 mt-3">
-<table class="table">
+<table class="table border">
     <thead class="thead-dark">
     <tr>
         {% for _, field := range fields %}

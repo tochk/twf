@@ -25,6 +25,11 @@
             margin: 50px auto 0;
         }
 
+        /* BMD sets navbar z-index to 1, same as checkbox decorators, so dropdowns render under them */
+        .navbar {
+            z-index: 1030;
+        }
+
         tbody tr:hover {
             background-color: lightblue !important;
         }

@@ -21,67 +21,67 @@ func fkErrorCases() []fkErrorCase {
 			name:    "no fks",
 			info:    fkGroupInfo,
 			fks:     nil,
-			wantErr: "fks index 0 not provided",
+			wantErr: "fks index 0 out of range",
 		},
 		{
 			name:    "index out of range",
 			info:    &datastruct.FkInfo{FksIndex: 1, ID: "id", Name: "name"},
 			fks:     []any{fkGroups},
-			wantErr: "fks index 1 not provided",
+			wantErr: "fks index 1 out of range",
 		},
 		{
 			name:    "negative index",
 			info:    &datastruct.FkInfo{FksIndex: -1, ID: "id", Name: "name"},
 			fks:     []any{fkGroups},
-			wantErr: "fks index -1 not provided",
+			wantErr: "fks index -1 out of range",
 		},
 		{
 			name:    "nil fks element",
 			info:    fkGroupInfo,
 			fks:     []any{nil},
-			wantErr: "fks with index 0 must be slice, got nil",
+			wantErr: "fks[0]: expected slice of structs, got nil",
 		},
 		{
 			name:    "fks element is not slice",
 			info:    fkGroupInfo,
 			fks:     []any{fkGroup{1, "admins"}},
-			wantErr: "fks with index 0 must be slice, not struct",
+			wantErr: "fks[0]: expected slice of structs, got struct",
 		},
 		{
 			name:    "fks element is slice of int",
 			info:    fkGroupInfo,
 			fks:     []any{[]int{1}},
-			wantErr: "fks with index 0 must be slice of structs, got slice of int",
+			wantErr: "fks[0]: expected slice of structs, got slice of int",
 		},
 		{
 			name:    "fks element is slice of pointers",
 			info:    fkGroupInfo,
 			fks:     []any{[]*fkGroup{{1, "admins"}}},
-			wantErr: "fks with index 0 must be slice of structs, got slice of ptr",
+			wantErr: "fks[0]: expected slice of structs, got slice of ptr",
 		},
 		{
 			name:    "fks struct field without twf tag",
 			info:    fkGroupInfo,
 			fks:     []any{[]fkUntagged{{1, "admins"}}},
-			wantErr: "must be present in all fks structs, missing on field Name",
+			wantErr: "fks[0]: field fkUntagged.Name: twf tag missing",
 		},
 		{
 			name:    "empty fks slice of struct without twf tag",
 			info:    fkGroupInfo,
 			fks:     []any{[]fkUntagged{}},
-			wantErr: "must be present in all fks structs, missing on field Name",
+			wantErr: "fks[0]: field fkUntagged.Name: twf tag missing",
 		},
 		{
 			name:    "fks struct with unexported field",
 			info:    fkGroupInfo,
 			fks:     []any{[]fkUnexported{{1, "admins"}}},
-			wantErr: "fks with index 0: field id must be exported",
+			wantErr: "fks[0]: field fkUnexported.id: must be exported",
 		},
 		{
 			name:    "selected fks element is invalid",
 			info:    &datastruct.FkInfo{FksIndex: 1, ID: "id", Name: "name"},
 			fks:     []any{fkGroups, 5},
-			wantErr: "fks with index 1 must be slice, not int",
+			wantErr: "fks[1]: expected slice of structs, got int",
 		},
 	}
 }
@@ -310,7 +310,7 @@ func Test_validateFks(t *testing.T) {
 		{
 			name:    "reports index of first invalid element",
 			fks:     []any{fkGroups, []fkOther{}, []int{}, nil},
-			wantErr: "fks with index 2 must be slice of structs, got slice of int",
+			wantErr: "fks[2]: expected slice of structs, got slice of int",
 		},
 	}
 	for _, tt := range tests {

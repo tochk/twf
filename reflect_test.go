@@ -106,42 +106,42 @@ func Test_getSliceElementPtrType(t *testing.T) {
 		{
 			name:    "nil",
 			item:    nil,
-			wantErr: "expected slice, got nil",
+			wantErr: "expected slice of structs, got nil",
 		},
 		{
 			name:    "int",
 			item:    1,
-			wantErr: "expected slice, got int",
+			wantErr: "expected slice of structs, got int",
 		},
 		{
 			name:    "struct",
 			item:    item{},
-			wantErr: "expected slice, got struct",
+			wantErr: "expected slice of structs, got struct",
 		},
 		{
 			name:    "array",
 			item:    [1]item{},
-			wantErr: "expected slice, got array",
+			wantErr: "expected slice of structs, got array",
 		},
 		{
 			name:    "pointer to slice",
 			item:    &[]item{},
-			wantErr: "expected slice, got ptr",
+			wantErr: "expected slice of structs, got ptr",
 		},
 		{
 			name:    "simpe_slice_err",
 			item:    []string{},
-			wantErr: "contains string, expected struct",
+			wantErr: "got slice of string",
 		},
 		{
 			name:    "simpe_slice_ptr_err",
 			item:    []*string{},
-			wantErr: "contains ptr, expected struct",
+			wantErr: "got slice of ptr",
 		},
 		{
 			name:    "simpe_slice_ptr_err_struct",
 			item:    []*struct{}{},
-			wantErr: "contains ptr, expected struct",
+			wantErr: "got slice of ptr",
 		},
 		{
 			name: "simpe_slice_struct",
@@ -205,63 +205,63 @@ func Test_getFieldDescription(t *testing.T) {
 			s: reflect.TypeOf(&struct {
 				A string
 			}{}),
-			wantErr: "twf tag must be present and not be empty",
+			wantErr: "twf tag missing or empty",
 		},
 		{
 			name: "only foreign tag",
 			s: reflect.TypeOf(&struct {
 				A string `json:"a"`
 			}{}),
-			wantErr: "twf tag must be present and not be empty",
+			wantErr: "twf tag missing or empty",
 		},
 		{
 			name: "empty tag",
 			s: reflect.TypeOf(&struct {
 				A string `twf:""`
 			}{}),
-			wantErr: "twf tag must be present and not be empty",
+			wantErr: "twf tag missing or empty",
 		},
 		{
 			name: "unknown option",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a,foo"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: "foo"`,
+			wantErr: `field A: unknown twf tag option "foo"`,
 		},
 		{
 			name: "unknown option with value",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a,size:10"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: "size:10"`,
+			wantErr: `field A: unknown twf tag option "size:10"`,
 		},
 		{
 			name: "trailing comma",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a,"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: ""`,
+			wantErr: `field A: unknown twf tag option ""`,
 		},
 		{
 			name: "space after comma",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a, required"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: " required"`,
+			wantErr: `field A: unknown twf tag option " required"`,
 		},
 		{
 			name: "options are case sensitive",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a,Required"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: "Required"`,
+			wantErr: `field A: unknown twf tag option "Required"`,
 		},
 		{
 			name: "flag with value",
 			s: reflect.TypeOf(&struct {
 				A string `twf:"name:a,required:true"`
 			}{}),
-			wantErr: `unexpected parameter in twf tag: "required:true"`,
+			wantErr: `field A: unknown twf tag option "required:true"`,
 		},
 		{
 			name: "error on second field",
@@ -269,14 +269,14 @@ func Test_getFieldDescription(t *testing.T) {
 				A string `twf:"name:a"`
 				B string
 			}{}),
-			wantErr: "twf tag must be present and not be empty",
+			wantErr: "twf tag missing or empty",
 		},
 		{
 			name: "unexported field",
 			s: reflect.TypeOf(&struct {
 				a string `twf:"name:a"`
 			}{}),
-			wantErr: "field a must be exported",
+			wantErr: "field a: must be exported",
 		},
 
 		// fk errors
@@ -285,35 +285,35 @@ func Test_getFieldDescription(t *testing.T) {
 			s: reflect.TypeOf(&struct {
 				A int `twf:"name:a,fk:0;id"`
 			}{}),
-			wantErr: "invalid fk info {0;id}",
+			wantErr: `field A: invalid fk "fk:0;id", expected fk:<index>;<idField>;<nameField>`,
 		},
 		{
 			name: "fk with four parts",
 			s: reflect.TypeOf(&struct {
 				A int `twf:"name:a,fk:0;id;name;x"`
 			}{}),
-			wantErr: "invalid fk info {0;id;name;x}",
+			wantErr: `field A: invalid fk "fk:0;id;name;x", expected fk:<index>;<idField>;<nameField>`,
 		},
 		{
 			name: "fk without value",
 			s: reflect.TypeOf(&struct {
 				A int `twf:"name:a,fk:"`
 			}{}),
-			wantErr: "invalid fk info {}",
+			wantErr: `field A: invalid fk "fk:", expected fk:<index>;<idField>;<nameField>`,
 		},
 		{
 			name: "fk in README comma format",
 			s: reflect.TypeOf(&struct {
 				A int `twf:"name:a,fk:0,id,name"`
 			}{}),
-			wantErr: "invalid fk info {0}",
+			wantErr: `field A: invalid fk "fk:0", expected fk:<index>;<idField>;<nameField>`,
 		},
 		{
 			name: "fk index is not int",
 			s: reflect.TypeOf(&struct {
 				A int `twf:"name:a,fk:a;id;name"`
 			}{}),
-			wantErr: "can't convert fk id to int",
+			wantErr: `field A: fk index "a" is not an integer`,
 		},
 		{
 			name: "fk index is negative",
@@ -327,14 +327,14 @@ func Test_getFieldDescription(t *testing.T) {
 			s: reflect.TypeOf(&struct {
 				A []int `twf:"name:a,fk:0;id;name"`
 			}{}),
-			wantErr: "fk field A must be of comparable type, got []int",
+			wantErr: "field A: fk field must be comparable, got []int",
 		},
 		{
 			name: "fk on pointer to non-comparable field",
 			s: reflect.TypeOf(&struct {
 				A *[]int `twf:"name:a,fk:0;id;name"`
 			}{}),
-			wantErr: "fk field A must be of comparable type, got *[]int",
+			wantErr: "field A: fk field must be comparable, got *[]int",
 		},
 
 		// success
@@ -535,7 +535,7 @@ func Test_structPtrValue(t *testing.T) {
 		{name: "nil", item: nil, wantErr: "fn: expected ptr to struct, got nil"},
 		{name: "struct value", item: item{}, wantErr: "fn: expected ptr to struct, got struct"},
 		{name: "pointer to int", item: &x, wantErr: "fn: expected ptr to struct, got ptr to int"},
-		{name: "typed nil pointer", item: nilItem, wantErr: "fn: expected ptr to struct, got nil ptr"},
+		{name: "typed nil pointer", item: nilItem, wantErr: "fn: expected ptr to struct, got nil *twf.item"},
 		{name: "pointer to struct", item: &item{A: "a"}},
 	}
 	for _, tt := range tests {

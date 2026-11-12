@@ -316,24 +316,24 @@ func TestPostFormToStruct(t *testing.T) {
 	}{
 		{name: "nil item", item: nil, r: formRequest(nil), wantErr: "twf.PostFormToStruct: expected ptr to struct, got nil"},
 		{name: "struct value", item: text{}, r: formRequest(nil), wantErr: "twf.PostFormToStruct: expected ptr to struct, got struct"},
-		{name: "typed nil pointer", item: nilItem, r: formRequest(nil), wantErr: "twf.PostFormToStruct: expected ptr to struct, got nil ptr"},
+		{name: "typed nil pointer", item: nilItem, r: formRequest(nil), wantErr: "twf.PostFormToStruct: expected ptr to struct, got nil *twf.text"},
 		{name: "pointer to int", item: &x, r: formRequest(nil), wantErr: "twf.PostFormToStruct: expected ptr to struct, got ptr to int"},
 		{name: "nil request", item: &text{}, r: nil, wantErr: "twf.PostFormToStruct: request is nil"},
-		{name: "bad tag", item: &untagged{}, r: formRequest(nil), wantErr: "twf.PostFormToStruct: twf tag must be present"},
+		{name: "bad tag", item: &untagged{}, r: formRequest(nil), wantErr: "twf.PostFormToStruct: twf.getFieldDescription: field untagged.S: twf tag missing or empty"},
 
-		{name: "int invalid", item: &number{}, r: formRequest(url.Values{"i": {"abc"}}), wantErr: `parsing "abc": invalid syntax`},
+		{name: "int invalid", item: &number{}, r: formRequest(url.Values{"i": {"abc"}}), wantErr: `twf.PostFormToStruct: field number.I ("i"): strconv.ParseInt: parsing "abc": invalid syntax`},
 		{name: "int empty", item: &number{}, r: formRequest(url.Values{"i": {""}}), wantErr: `parsing "": invalid syntax`},
 		{name: "int float value", item: &number{}, r: formRequest(url.Values{"i": {"1.5"}}), wantErr: `parsing "1.5": invalid syntax`},
-		{name: "int8 overflow", item: &number{}, r: formRequest(url.Values{"i8": {"128"}}), wantErr: `parsing "128": value out of range`},
+		{name: "int8 overflow", item: &number{}, r: formRequest(url.Values{"i8": {"128"}}), wantErr: `field number.I8 ("i8"): strconv.ParseInt: parsing "128": value out of range`},
 		{name: "int8 underflow", item: &number{}, r: formRequest(url.Values{"i8": {"-129"}}), wantErr: `parsing "-129": value out of range`},
 		{name: "int16 overflow", item: &number{}, r: formRequest(url.Values{"i16": {"32768"}}), wantErr: "value out of range"},
 		{name: "int32 overflow", item: &number{}, r: formRequest(url.Values{"i32": {"2147483648"}}), wantErr: "value out of range"},
 		{name: "int64 overflow", item: &number{}, r: formRequest(url.Values{"i64": {"9223372036854775808"}}), wantErr: "value out of range"},
-		{name: "uint negative", item: &number{}, r: formRequest(url.Values{"u": {"-1"}}), wantErr: `parsing "-1": invalid syntax`},
+		{name: "uint negative", item: &number{}, r: formRequest(url.Values{"u": {"-1"}}), wantErr: `twf.PostFormToStruct: field number.U ("u"): strconv.ParseUint: parsing "-1": invalid syntax`},
 		{name: "uint8 overflow", item: &number{}, r: formRequest(url.Values{"u8": {"256"}}), wantErr: `parsing "256": value out of range`},
 		{name: "uint16 overflow", item: &number{}, r: formRequest(url.Values{"u16": {"65536"}}), wantErr: "value out of range"},
 		{name: "uint32 overflow", item: &number{}, r: formRequest(url.Values{"u32": {"4294967296"}}), wantErr: "value out of range"},
-		{name: "float invalid", item: &number{}, r: formRequest(url.Values{"f64": {"x"}}), wantErr: `parsing "x": invalid syntax`},
+		{name: "float invalid", item: &number{}, r: formRequest(url.Values{"f64": {"x"}}), wantErr: `twf.PostFormToStruct: field number.F64 ("f64"): strconv.ParseFloat: parsing "x": invalid syntax`},
 		{name: "float32 overflow", item: &number{}, r: formRequest(url.Values{"f32": {"1e39"}}), wantErr: `parsing "1e39": value out of range`},
 		{name: "float64 overflow", item: &number{}, r: formRequest(url.Values{"f64": {"1e309"}}), wantErr: "value out of range"},
 		{
@@ -344,7 +344,7 @@ func TestPostFormToStruct(t *testing.T) {
 				r.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 				return r
 			}(),
-			wantErr: "twf.PostFormToStruct: request Content-Type isn't multipart/form-data",
+			wantErr: "twf.PostFormToStruct: field file.Avatar (\"avatar\"): request Content-Type isn't multipart/form-data",
 		},
 	}
 	for _, tt := range errTests {

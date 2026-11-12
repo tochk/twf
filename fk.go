@@ -12,21 +12,21 @@ import (
 func validateFk(idx int, fk any) error {
 	t := reflect.TypeOf(fk)
 	if t == nil {
-		return fmt.Errorf("twf.validateFk: fks with index %d must be slice, got nil", idx)
+		return fmt.Errorf("twf.validateFk: fks[%d]: expected slice of structs, got nil", idx)
 	}
 	if t.Kind() != reflect.Slice {
-		return fmt.Errorf("twf.validateFk: fks with index %d must be slice, not %s", idx, t.Kind().String())
+		return fmt.Errorf("twf.validateFk: fks[%d]: expected slice of structs, got %s", idx, t.Kind().String())
 	}
 	e := t.Elem()
 	if e.Kind() != reflect.Struct {
-		return fmt.Errorf("twf.validateFk: fks with index %d must be slice of structs, got slice of %s", idx, e.Kind().String())
+		return fmt.Errorf("twf.validateFk: fks[%d]: expected slice of structs, got slice of %s", idx, e.Kind().String())
 	}
 	for f := range e.Fields() {
 		if !f.IsExported() {
-			return fmt.Errorf("twf.validateFk: fks with index %d: field %s must be exported", idx, f.Name)
+			return fmt.Errorf("twf.validateFk: fks[%d]: field %s: must be exported", idx, fieldLabel(e, f.Name))
 		}
 		if _, ok := f.Tag.Lookup("twf"); !ok {
-			return fmt.Errorf("twf.validateFk: fks with index %d: twf tag with twf:\"name:value\" must be present in all fks structs, missing on field %s", idx, f.Name)
+			return fmt.Errorf("twf.validateFk: fks[%d]: field %s: twf tag missing", idx, fieldLabel(e, f.Name))
 		}
 	}
 	return nil
@@ -45,7 +45,7 @@ func validateFks(fks []any) error {
 // fkSliceValue returns validated fks slice selected by fksInfo
 func fkSliceValue(fksInfo *datastruct.FkInfo, fks []any) (reflect.Value, error) {
 	if fksInfo.FksIndex < 0 || len(fks) <= fksInfo.FksIndex {
-		return reflect.Value{}, fmt.Errorf("fks index %d not provided", fksInfo.FksIndex)
+		return reflect.Value{}, fmt.Errorf("twf.fkSliceValue: fks index %d out of range, got %d fks", fksInfo.FksIndex, len(fks))
 	}
 	fk := fks[fksInfo.FksIndex]
 	if err := validateFk(fksInfo.FksIndex, fk); err != nil {

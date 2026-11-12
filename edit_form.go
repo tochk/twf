@@ -40,7 +40,7 @@ func (t *TWF) EditForm(pageTitle string, item any, link string, fks ...any) (str
 
 		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
-			return "", fmt.Errorf("twf.EditForm: %w", err)
+			return "", fmt.Errorf("twf.EditForm: field %s: %w", fieldLabel(s.Type(), s.Type().Field(i).Name), err)
 		}
 
 		field.Value = fmt.Sprint(value)

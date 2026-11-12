@@ -45,49 +45,57 @@ func PostFormToStruct(item any, r *http.Request) error {
 		if !ok && fields[i].Type != typeFile && (!formParsed || !absentMeansFalse(&fields[i], f.Kind())) {
 			continue
 		}
-		// the empty option of a select means "nothing selected"
-		if fields[i].Type == typeSelect && formValue == "" {
-			f.SetZero()
-			continue
+		if err := setField(f, &fields[i], formValue, r); err != nil {
+			return fmt.Errorf("twf.PostFormToStruct: field %s (%q): %w", fieldLabel(s.Type(), s.Type().Field(i).Name), fields[i].Name, err)
 		}
-		switch f.Kind() {
-		case reflect.String:
-			f.SetString(formValue)
-		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
-			v, err := strconv.ParseInt(formValue, 10, f.Type().Bits())
+	}
+	return nil
+}
+
+// setField sets struct field f from its form value. File fields are read from r
+func setField(f reflect.Value, field *datastruct.Field, formValue string, r *http.Request) error {
+	// the empty option of a select means "nothing selected"
+	if field.Type == typeSelect && formValue == "" {
+		f.SetZero()
+		return nil
+	}
+	switch f.Kind() {
+	case reflect.String:
+		f.SetString(formValue)
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		v, err := strconv.ParseInt(formValue, 10, f.Type().Bits())
+		if err != nil {
+			return err
+		}
+		f.SetInt(v)
+	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+		v, err := strconv.ParseUint(formValue, 10, f.Type().Bits())
+		if err != nil {
+			return err
+		}
+		f.SetUint(v)
+	case reflect.Float64, reflect.Float32:
+		v, err := strconv.ParseFloat(formValue, f.Type().Bits())
+		if err != nil {
+			return err
+		}
+		f.SetFloat(v)
+	case reflect.Bool:
+		f.SetBool(formValue == "on")
+	case reflect.Slice:
+		if f.Type() == reflect.TypeFor[[]byte]() && field.Type == typeFile {
+			file, _, err := r.FormFile(field.Name)
+			if errors.Is(err, http.ErrMissingFile) {
+				return nil
+			}
 			if err != nil {
-				return fmt.Errorf("twf.PostFormToStruct: %w", err)
+				return err
 			}
-			f.SetInt(v)
-		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
-			v, err := strconv.ParseUint(formValue, 10, f.Type().Bits())
+			data, err := io.ReadAll(file)
 			if err != nil {
-				return fmt.Errorf("twf.PostFormToStruct: %w", err)
+				return fmt.Errorf("read file: %w", err)
 			}
-			f.SetUint(v)
-		case reflect.Float64, reflect.Float32:
-			v, err := strconv.ParseFloat(formValue, f.Type().Bits())
-			if err != nil {
-				return fmt.Errorf("twf.PostFormToStruct: %w", err)
-			}
-			f.SetFloat(v)
-		case reflect.Bool:
-			f.SetBool(formValue == "on")
-		case reflect.Slice:
-			if f.Type() == reflect.TypeFor[[]byte]() && fields[i].Type == typeFile {
-				file, _, err := r.FormFile(fields[i].Name)
-				if errors.Is(err, http.ErrMissingFile) {
-					continue
-				}
-				if err != nil {
-					return fmt.Errorf("twf.PostFormToStruct: %w", err)
-				}
-				data, err := io.ReadAll(file)
-				if err != nil {
-					return fmt.Errorf("twf.PostFormToStruct: %w", err)
-				}
-				f.SetBytes(data)
-			}
+			f.SetBytes(data)
 		}
 	}
 	return nil

@@ -95,7 +95,7 @@ func generateTableItemsSlice(s reflect.Value, fields []datastruct.Field, i int, 
 		var fkValue any
 		fkValue, value, err := getFKValue(fields[j].FkInfo, value, fks)
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("field %s: %w", fieldLabel(s.Type().Elem(), s.Type().Elem().Field(j).Name), err)
 		}
 
 		if fkValue != nil {

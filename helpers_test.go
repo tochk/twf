@@ -162,42 +162,42 @@ func formErrorCases(fn string) []formErrorCase {
 
 	return []formErrorCase{
 		{name: "nil item", item: nil, wantErr: fn + ": expected ptr to struct, got nil"},
-		{name: "struct value", item: item{}, wantErr: fn + ": expected ptr to struct, got struct"},
-		{name: "typed nil pointer", item: nilItem, wantErr: fn + ": expected ptr to struct, got nil ptr"},
+		{name: "struct value", item: item{}, wantErr: fn + ": expected ptr to struct, got struct (pass &v)"},
+		{name: "typed nil pointer", item: nilItem, wantErr: fn + ": expected ptr to struct, got nil *twf.item"},
 		{name: "pointer to int", item: &x, wantErr: fn + ": expected ptr to struct, got ptr to int"},
-		{name: "bad tag", item: &untagged{}, wantErr: fn + ": twf tag must be present and not be empty"},
+		{name: "bad tag", item: &untagged{}, wantErr: fn + ": twf.getFieldDescription: field untagged.A: twf tag missing or empty"},
 		{
 			name: "unexported field",
 			item: &struct {
 				a string `twf:"name:a"`
 			}{},
-			wantErr: fn + ": twf.getFieldDescription: field a must be exported",
+			wantErr: fn + ": twf.getFieldDescription: field a: must be exported",
 		},
-		{name: "fk index not provided", item: &withFk{}, wantErr: fn + ": twf.getFKSlice: fks index 0 not provided"},
+		{name: "fk index not provided", item: &withFk{}, wantErr: fn + ": field withFk.G: twf.getFKSlice: twf.fkSliceValue: fks index 0 out of range, got 0 fks"},
 		{
 			// pinned: fk misconfiguration is reported even for fields not rendered in the form
 			name:    "fk index not provided for hidden field",
 			item:    &hiddenFk{},
 			fks:     []any{fkGroups},
-			wantErr: fn + ": twf.getFKSlice: fks index 1 not provided",
+			wantErr: fn + ": field hiddenFk.G: twf.getFKSlice: twf.fkSliceValue: fks index 1 out of range, got 1 fks",
 		},
 		{
 			name:    "nil fks element",
 			item:    &item{},
 			fks:     []any{nil},
-			wantErr: fn + ": twf.validateFk: fks with index 0 must be slice, got nil",
+			wantErr: fn + ": twf.validateFk: fks[0]: expected slice of structs, got nil",
 		},
 		{
 			name:    "unused invalid fks element",
 			item:    &item{},
 			fks:     []any{fkGroups, 5},
-			wantErr: fn + ": twf.validateFk: fks with index 1 must be slice, not int",
+			wantErr: fn + ": twf.validateFk: fks[1]: expected slice of structs, got int",
 		},
 		{
 			name:    "fks slice of int",
 			item:    &withFk{},
 			fks:     []any{[]int{1}},
-			wantErr: "fks with index 0 must be slice of structs, got slice of int",
+			wantErr: "fks[0]: expected slice of structs, got slice of int",
 		},
 	}
 }

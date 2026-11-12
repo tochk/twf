@@ -50,7 +50,7 @@ func (t *TWF) AddForm(title string, item any, link string, fks ...any) (string, 
 
 		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
-			return "", fmt.Errorf("twf.AddForm: %w", err)
+			return "", fmt.Errorf("twf.AddForm: field %s: %w", fieldLabel(s.Type(), s.Type().Field(i).Name), err)
 		}
 
 		field.Value = fmt.Sprint(value)

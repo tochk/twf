@@ -244,7 +244,7 @@ func Test_generateTableItemsSlice(t *testing.T) {
 			name:    "fk error propagates",
 			slice:   []withFk{{G: 1}},
 			fks:     nil,
-			wantErr: "fks index 0 not provided",
+			wantErr: "fks index 0 out of range",
 		},
 	}
 	for _, tt := range tests {
@@ -354,47 +354,47 @@ func TestTWF_Table(t *testing.T) {
 			wantItems: 0,
 		},
 
-		{name: "nil slice", slice: nil, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice, got nil"},
-		{name: "struct", slice: row{}, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice, got struct"},
-		{name: "pointer to slice", slice: &[]row{}, wantErr: "expected slice, got ptr"},
-		{name: "slice of int", slice: []int{1}, wantErr: "slice contains int, expected struct"},
-		{name: "slice of pointers", slice: []*row{{1, "a"}}, wantErr: "slice contains ptr, expected struct"},
-		{name: "bad tag", slice: []untagged{{"a"}}, wantErr: "twf.Table: twf tag must be present"},
+		{name: "nil slice", slice: nil, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice of structs, got nil"},
+		{name: "struct", slice: row{}, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice of structs, got struct"},
+		{name: "pointer to slice", slice: &[]row{}, wantErr: "expected slice of structs, got ptr"},
+		{name: "slice of int", slice: []int{1}, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice of structs, got slice of int"},
+		{name: "slice of pointers", slice: []*row{{1, "a"}}, wantErr: "twf.Table: twf.getSliceElementPtrType: expected slice of structs, got slice of ptr (use []T, not []*T)"},
+		{name: "bad tag", slice: []untagged{{"a"}}, wantErr: "twf.Table: twf.getFieldDescription: field untagged.Name: twf tag missing or empty"},
 		{
 			name:    "nil fks element",
 			slice:   []row{},
 			fks:     []any{nil},
-			wantErr: "twf.Table: twf.validateFk: fks with index 0 must be slice, got nil",
+			wantErr: "twf.Table: twf.validateFk: fks[0]: expected slice of structs, got nil",
 		},
 		{
 			name:    "non-slice fks element",
 			slice:   []row{},
 			fks:     []any{fkGroups, 5},
-			wantErr: "fks with index 1 must be slice, not int",
+			wantErr: "fks[1]: expected slice of structs, got int",
 		},
 		{
 			name:    "fks slice of int",
 			slice:   []row{},
 			fks:     []any{[]int{1}},
-			wantErr: "must be slice of structs, got slice of int",
+			wantErr: "twf.Table: twf.validateFk: fks[0]: expected slice of structs, got slice of int",
 		},
 		{
 			name:    "fks struct without tags",
 			slice:   []row{},
 			fks:     []any{[]fkUntagged{}},
-			wantErr: "must be present in all fks structs",
+			wantErr: "twf.Table: twf.validateFk: fks[0]: field fkUntagged.Name: twf tag missing",
 		},
 		{
 			name:    "fks struct with unexported field",
 			slice:   []row{},
 			fks:     []any{[]fkUnexported{}},
-			wantErr: "field id must be exported",
+			wantErr: "twf.Table: twf.validateFk: fks[0]: field fkUnexported.id: must be exported",
 		},
 		{
 			name:    "fk index out of range",
 			slice:   []withFk1{{1}},
 			fks:     []any{fkGroups},
-			wantErr: "twf.Table: twf.getFKValue: fks index 1 not provided",
+			wantErr: "twf.Table: field withFk1.G: twf.getFKValue: twf.fkSliceValue: fks index 1 out of range, got 1 fks",
 		},
 	}
 	for _, tt := range tests {

@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"reflect"
 	"strings"
-
-	"github.com/pkg/errors"
 )
 
 // EditForm returns page with edit form filled with values from item. `value` tag is used only for fields with
@@ -17,12 +15,12 @@ func (t *TWF) EditForm(pageTitle string, item any, link string, fks ...any) (str
 	}
 
 	if err := validateFks(fks); err != nil {
-		return "", errors.Wrap(err, "twf.EditForm")
+		return "", fmt.Errorf("twf.EditForm: %w", err)
 	}
 
 	fields, err := getFieldDescription(reflect.TypeOf(item))
 	if err != nil {
-		return "", errors.Wrap(err, "twf.EditForm")
+		return "", fmt.Errorf("twf.EditForm: %w", err)
 	}
 	res := strings.Builder{}
 	res.WriteString(t.HeadFunc(pageTitle))
@@ -42,7 +40,7 @@ func (t *TWF) EditForm(pageTitle string, item any, link string, fks ...any) (str
 
 		kvs, err := getFKSlice(field.FkInfo, fks...)
 		if err != nil {
-			return "", errors.Wrap(err, "twf.EditForm")
+			return "", fmt.Errorf("twf.EditForm: %w", err)
 		}
 
 		field.Value = fmt.Sprint(value)

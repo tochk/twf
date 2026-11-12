@@ -1,12 +1,11 @@
 package twf
 
 import (
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
-
-	"github.com/pkg/errors"
 
 	"github.com/tochk/twf/datastruct"
 )
@@ -69,7 +68,7 @@ func getFieldDescription(s reflect.Type) ([]datastruct.Field, error) {
 				}
 				fkID, err := strconv.Atoi(fkInfo[0])
 				if err != nil {
-					return nil, errors.Wrap(err, "twf.getFieldDescription: can't convert fk id to int")
+					return nil, fmt.Errorf("twf.getFieldDescription: can't convert fk id to int: %w", err)
 				}
 				if fkID < 0 {
 					return nil, fmt.Errorf("twf.getFieldDescription: fk index must not be negative, got %d", fkID)

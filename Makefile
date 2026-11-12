@@ -3,21 +3,25 @@ test:
 
 generate:
 	go generate ./...
+	go -C examples generate ./...
 
 fmt:
 	go fmt ./...
+	go -C examples fmt ./...
 
 lint:
 	golangci-lint run ./...
+	cd examples && golangci-lint run ./...
 
 lint_fix:
 	golangci-lint run --fix ./...
+	cd examples && golangci-lint run --fix ./...
 
 test_cover:
 	go test ./... -cover
 
 run_example:
-	go build -o ./bin/example ./examples/
+	go -C examples build -o ../bin/example .
 	./bin/example
 
 all: fmt generate lint test

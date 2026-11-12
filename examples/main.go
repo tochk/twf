@@ -2,11 +2,12 @@ package main
 
 import (
 	"flag"
+	"log/slog"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/mux"
-	log "github.com/sirupsen/logrus"
 )
 
 // maxFormSize limits the size of posted forms, including uploaded files.
@@ -25,13 +26,14 @@ func main() {
 	r.HandleFunc("/users/", a.usersListPage)
 	r.HandleFunc("/users/edit/{id}", a.usersEditPage)
 
-	log.Info("Listening on: ", *listenAddr)
+	slog.Info("listening", "addr", *listenAddr)
 	srv := &http.Server{
 		Addr:              *listenAddr,
 		Handler:           r,
 		ReadHeaderTimeout: 10 * time.Second,
 	}
 	if err := srv.ListenAndServe(); err != nil {
-		log.Fatal(err)
+		slog.Error("server stopped", "err", err)
+		os.Exit(1)
 	}
 }

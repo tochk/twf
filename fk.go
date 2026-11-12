@@ -5,8 +5,6 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/pkg/errors"
-
 	"github.com/tochk/twf/datastruct"
 )
 
@@ -83,7 +81,7 @@ func getFKValue(fksInfo *datastruct.FkInfo, originalValue any, fks []any) (fkVal
 
 	fksValue, err := fkSliceValue(fksInfo, fks)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "twf.getFKValue")
+		return nil, nil, fmt.Errorf("twf.getFKValue: %w", err)
 	}
 
 	for k := 0; k < fksValue.Len(); k++ {
@@ -104,7 +102,7 @@ func getFKSlice(fksInfo *datastruct.FkInfo, fks ...any) ([]datastruct.FkKV, erro
 
 	fksValue, err := fkSliceValue(fksInfo, fks)
 	if err != nil {
-		return nil, errors.Wrap(err, "twf.getFKSlice")
+		return nil, fmt.Errorf("twf.getFKSlice: %w", err)
 	}
 
 	kvs := make([]datastruct.FkKV, 0, fksValue.Len())
